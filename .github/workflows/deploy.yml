@@ -169,6 +169,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     outputs:
       production_url: ${{ steps.deploy.outputs.production_url }}
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -225,7 +227,7 @@ jobs:
 
       - name: Notify Sentry of deployment
         uses: getsentry/action-release@v1
-        if: success() && secrets.SENTRY_AUTH_TOKEN != ''
+        if: ${{ success() && env.SENTRY_AUTH_TOKEN != '' }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
