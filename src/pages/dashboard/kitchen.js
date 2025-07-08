@@ -12,32 +12,32 @@ export default function KitchenDashboard() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
+    const fetchKitchenData = async () => {
+      try {
+        setLoading(true);
+
+        const queryParams = new URLSearchParams();
+        if (statusFilter !== 'ALL') queryParams.append('status', statusFilter);
+
+        const [ordersRes, inventoryRes] = await Promise.all([
+          fetch(`/api/orders?${queryParams}`),
+          fetch('/api/inventory'),
+        ]);
+
+        const ordersData = await ordersRes.json();
+        const inventoryData = await inventoryRes.json();
+
+        setOrders(ordersData.data || []);
+        setInventory(inventoryData.data || []);
+      } catch (error) {
+        console.error('Error fetching kitchen data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchKitchenData();
   }, [statusFilter]);
-
-  const fetchKitchenData = async () => {
-    try {
-      setLoading(true);
-      
-      const queryParams = new URLSearchParams();
-      if (statusFilter !== 'ALL') queryParams.append('status', statusFilter);
-      
-      const [ordersRes, inventoryRes] = await Promise.all([
-        fetch(`/api/orders?${queryParams}`),
-        fetch('/api/inventory'),
-      ]);
-
-      const ordersData = await ordersRes.json();
-      const inventoryData = await inventoryRes.json();
-
-      setOrders(ordersData.data || []);
-      setInventory(inventoryData.data || []);
-    } catch (error) {
-      console.error('Error fetching kitchen data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -51,21 +51,42 @@ export default function KitchenDashboard() {
 
       if (response.ok) {
         // Optimistic update
-        setOrders(prev => prev.map(order => 
-          order.id === orderId 
-            ? { ...order, status: newStatus, isOptimistic: true }
-            : order
-        ));
-        
+        setOrders(prev =>
+          prev.map(order =>
+            order.id === orderId ? { ...order, status: newStatus, isOptimistic: true } : order
+          )
+        );
+
         // Refresh data to get real update
-        setTimeout(fetchKitchenData, 1000);
+        setTimeout(() => {
+          const fetchKitchenData = async () => {
+            try {
+              const queryParams = new URLSearchParams();
+              if (statusFilter !== 'ALL') queryParams.append('status', statusFilter);
+
+              const [ordersRes, inventoryRes] = await Promise.all([
+                fetch(`/api/orders?${queryParams}`),
+                fetch('/api/inventory'),
+              ]);
+
+              const ordersData = await ordersRes.json();
+              const inventoryData = await inventoryRes.json();
+
+              setOrders(ordersData.data || []);
+              setInventory(inventoryData.data || []);
+            } catch (error) {
+              console.error('Error fetching kitchen data:', error);
+            }
+          };
+          fetchKitchenData();
+        }, 1000);
       }
     } catch (error) {
       console.error('Error updating order status:', error);
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800';
@@ -86,24 +107,24 @@ export default function KitchenDashboard() {
     }
   };
 
-  const getNextStatus = (currentStatus) => {
+  const getNextStatus = currentStatus => {
     const statusFlow = {
-      'PENDING': 'CONFIRMED',
-      'CONFIRMED': 'PREPARING',
-      'PREPARING': 'READY',
-      'READY': 'OUT_FOR_DELIVERY',
-      'OUT_FOR_DELIVERY': 'DELIVERED',
+      PENDING: 'CONFIRMED',
+      CONFIRMED: 'PREPARING',
+      PREPARING: 'READY',
+      READY: 'OUT_FOR_DELIVERY',
+      OUT_FOR_DELIVERY: 'DELIVERED',
     };
     return statusFlow[currentStatus];
   };
 
-  const getStatusAction = (currentStatus) => {
+  const getStatusAction = currentStatus => {
     const actions = {
-      'PENDING': 'Confirm',
-      'CONFIRMED': 'Start Preparing',
-      'PREPARING': 'Mark Ready',
-      'READY': 'Send for Delivery',
-      'OUT_FOR_DELIVERY': 'Mark Delivered',
+      PENDING: 'Confirm',
+      CONFIRMED: 'Start Preparing',
+      PREPARING: 'Mark Ready',
+      READY: 'Send for Delivery',
+      OUT_FOR_DELIVERY: 'Mark Delivered',
     };
     return actions[currentStatus];
   };
@@ -130,7 +151,7 @@ export default function KitchenDashboard() {
         {/* Tab Navigation */}
         <div className="mb-6">
           <nav className="flex space-x-8">
-            {['orders', 'inventory'].map((tab) => (
+            {['orders', 'inventory'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
@@ -155,7 +176,7 @@ export default function KitchenDashboard() {
                 <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={e => setStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="ALL">All Orders</option>
@@ -170,16 +191,19 @@ export default function KitchenDashboard() {
 
             {/* Orders Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {orders.map((order) => (
+              {orders.map(order => (
                 <div key={order.id} className="bg-white p-6 rounded-xl shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="font-bold text-lg">{order.orderNumber}</h3>
                       <p className="text-sm text-gray-600">
-                        {order.customer?.user?.profile?.firstName} {order.customer?.user?.profile?.lastName}
+                        {order.customer?.user?.profile?.firstName}{' '}
+                        {order.customer?.user?.profile?.lastName}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}
+                    >
                       {order.status}
                     </span>
                   </div>
@@ -197,14 +221,16 @@ export default function KitchenDashboard() {
                   <div className="mb-4">
                     <h4 className="font-semibold text-sm mb-2">Items:</h4>
                     <div className="space-y-1">
-                      {order.orderItems?.slice(0, 3).map((item) => (
+                      {order.orderItems?.slice(0, 3).map(item => (
                         <div key={item.id} className="flex justify-between text-sm">
                           <span>{item.menuItem.name}</span>
                           <span>x{item.quantity}</span>
                         </div>
                       ))}
                       {order.orderItems?.length > 3 && (
-                        <p className="text-xs text-gray-500">+{order.orderItems.length - 3} more items</p>
+                        <p className="text-xs text-gray-500">
+                          +{order.orderItems.length - 3} more items
+                        </p>
                       )}
                     </div>
                   </div>
@@ -219,7 +245,7 @@ export default function KitchenDashboard() {
                         {getStatusAction(order.status)}
                       </button>
                     )}
-                    
+
                     {['PENDING', 'CONFIRMED', 'PREPARING'].includes(order.status) && (
                       <button
                         onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
@@ -245,7 +271,7 @@ export default function KitchenDashboard() {
         {selectedTab === 'inventory' && (
           <div className="bg-white p-6 rounded-xl shadow">
             <h3 className="text-lg font-bold mb-4">Inventory Status</h3>
-            
+
             {inventory.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -260,7 +286,7 @@ export default function KitchenDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {inventory.map((item) => (
+                    {inventory.map(item => (
                       <tr key={item.id} className="border-t text-sm">
                         <td className="py-2 font-semibold">{item.name}</td>
                         <td className="py-2">{item.category}</td>
@@ -268,19 +294,20 @@ export default function KitchenDashboard() {
                         <td className="py-2">{item.minStock}</td>
                         <td className="py-2">{item.unit}</td>
                         <td className="py-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            item.currentStock <= item.minStock 
-                              ? 'bg-red-100 text-red-800' 
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              item.currentStock <= item.minStock
+                                ? 'bg-red-100 text-red-800'
+                                : item.currentStock <= item.minStock * 2
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-green-100 text-green-800'
+                            }`}
+                          >
+                            {item.currentStock <= item.minStock
+                              ? 'Low Stock'
                               : item.currentStock <= item.minStock * 2
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {item.currentStock <= item.minStock 
-                              ? 'Low Stock' 
-                              : item.currentStock <= item.minStock * 2
-                              ? 'Warning'
-                              : 'Good'
-                            }
+                                ? 'Warning'
+                                : 'Good'}
                           </span>
                         </td>
                       </tr>

@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '../lib/utils';
 
-export default function SubscriptionForm({ 
-  onSuccess, 
-  onError, 
-  customerId, 
+export default function SubscriptionForm({
+  onSuccess,
+  onError,
+  customerId,
   businessId,
-  onOptimisticUpdate 
+  onOptimisticUpdate,
 }) {
   const [formData, setFormData] = useState({
     planId: '',
@@ -26,34 +26,36 @@ export default function SubscriptionForm({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchPlansAndKitchens();
-  }, [businessId]);
+    const fetchPlansAndKitchens = async () => {
+      try {
+        setLoading(true);
 
-  const fetchPlansAndKitchens = async () => {
-    try {
-      setLoading(true);
-      
-      const [plansRes, kitchensRes] = await Promise.all([
-        fetch(`/api/subscription-plans?businessId=${businessId}`),
-        fetch(`/api/kitchens?businessId=${businessId}`),
-      ]);
+        const [plansRes, kitchensRes] = await Promise.all([
+          fetch(`/api/subscription-plans?businessId=${businessId}`),
+          fetch(`/api/kitchens?businessId=${businessId}`),
+        ]);
 
-      const plansData = await plansRes.json();
-      const kitchensData = await kitchensRes.json();
+        const plansData = await plansRes.json();
+        const kitchensData = await kitchensRes.json();
 
-      setPlans(plansData.data || []);
-      setKitchens(kitchensData.data || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      onError?.('Failed to load plans and kitchens');
-    } finally {
-      setLoading(false);
+        setPlans(plansData.data || []);
+        setKitchens(kitchensData.data || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        onError?.('Failed to load plans and kitchens');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (businessId) {
+      fetchPlansAndKitchens();
     }
-  };
+  }, [businessId, onError]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    
+
     if (!formData.planId) {
       onError?.('Please select a subscription plan');
       return;
@@ -65,7 +67,7 @@ export default function SubscriptionForm({
       // Optimistic update - immediately show the new subscription
       const selectedPlan = plans.find(p => p.id === formData.planId);
       const selectedKitchen = kitchens.find(k => k.id === formData.kitchenId);
-      
+
       const optimisticSubscription = {
         id: `temp-${Date.now()}`,
         status: 'ACTIVE',
@@ -103,7 +105,7 @@ export default function SubscriptionForm({
       }
 
       const subscription = await response.json();
-      
+
       // Replace optimistic update with real data
       onSuccess?.(subscription, optimisticSubscription.id);
 
@@ -118,11 +120,10 @@ export default function SubscriptionForm({
         deliveryInstructions: '',
         customizations: {},
       });
-
     } catch (error) {
       console.error('Error creating subscription:', error);
       onError?.(error.message);
-      
+
       // Remove optimistic update on error
       onOptimisticUpdate?.(null, optimisticSubscription.id);
     } finally {
@@ -157,7 +158,7 @@ export default function SubscriptionForm({
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <h3 className="text-lg font-bold mb-6">Create New Subscription</h3>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Plan Selection */}
         <div>
@@ -166,7 +167,7 @@ export default function SubscriptionForm({
           </label>
           <select
             value={formData.planId}
-            onChange={(e) => handleInputChange('planId', e.target.value)}
+            onChange={e => handleInputChange('planId', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
@@ -181,12 +182,10 @@ export default function SubscriptionForm({
 
         {/* Kitchen Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Kitchen (Optional)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Kitchen (Optional)</label>
           <select
             value={formData.kitchenId}
-            onChange={(e) => handleInputChange('kitchenId', e.target.value)}
+            onChange={e => handleInputChange('kitchenId', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Auto-assign kitchen</option>
@@ -201,13 +200,11 @@ export default function SubscriptionForm({
         {/* Date Range */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Start Date *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date *</label>
             <input
               type="date"
               value={formData.startDate}
-              onChange={(e) => handleInputChange('startDate', e.target.value)}
+              onChange={e => handleInputChange('startDate', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -219,7 +216,7 @@ export default function SubscriptionForm({
             <input
               type="date"
               value={formData.endDate}
-              onChange={(e) => handleInputChange('endDate', e.target.value)}
+              onChange={e => handleInputChange('endDate', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -227,12 +224,10 @@ export default function SubscriptionForm({
 
         {/* Delivery Address */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Delivery Address
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Address</label>
           <textarea
             value={formData.deliveryAddress}
-            onChange={(e) => handleInputChange('deliveryAddress', e.target.value)}
+            onChange={e => handleInputChange('deliveryAddress', e.target.value)}
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter delivery address..."
@@ -246,7 +241,7 @@ export default function SubscriptionForm({
           </label>
           <textarea
             value={formData.deliveryInstructions}
-            onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
+            onChange={e => handleInputChange('deliveryInstructions', e.target.value)}
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Special delivery instructions..."
@@ -259,7 +254,7 @@ export default function SubscriptionForm({
             type="checkbox"
             id="autoRenew"
             checked={formData.autoRenew}
-            onChange={(e) => handleInputChange('autoRenew', e.target.checked)}
+            onChange={e => handleInputChange('autoRenew', e.target.checked)}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
           <label htmlFor="autoRenew" className="ml-2 block text-sm text-gray-700">
@@ -272,11 +267,20 @@ export default function SubscriptionForm({
           <div className="bg-gray-50 p-4 rounded-md">
             <h4 className="font-semibold text-gray-800 mb-2">Plan Summary</h4>
             <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Plan:</strong> {selectedPlan.name}</p>
-              <p><strong>Price:</strong> {formatCurrency(selectedPlan.price)}/{selectedPlan.type.toLowerCase()}</p>
-              <p><strong>Duration:</strong> {selectedPlan.duration} days</p>
+              <p>
+                <strong>Plan:</strong> {selectedPlan.name}
+              </p>
+              <p>
+                <strong>Price:</strong> {formatCurrency(selectedPlan.price)}/
+                {selectedPlan.type.toLowerCase()}
+              </p>
+              <p>
+                <strong>Duration:</strong> {selectedPlan.duration} days
+              </p>
               {selectedPlan.description && (
-                <p><strong>Description:</strong> {selectedPlan.description}</p>
+                <p>
+                  <strong>Description:</strong> {selectedPlan.description}
+                </p>
               )}
             </div>
           </div>
@@ -308,7 +312,7 @@ export default function SubscriptionForm({
 // Helper function to calculate next billing date
 function calculateNextBillingDate(startDate, planType) {
   const date = new Date(startDate);
-  
+
   switch (planType) {
     case 'DAILY':
       date.setDate(date.getDate() + 1);
@@ -322,6 +326,6 @@ function calculateNextBillingDate(startDate, planType) {
     default:
       date.setMonth(date.getMonth() + 1);
   }
-  
+
   return date.toISOString();
 }

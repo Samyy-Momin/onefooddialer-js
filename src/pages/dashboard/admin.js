@@ -1,24 +1,115 @@
 // OneFoodDialer - Professional Admin Dashboard
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import Layout from "../../components/Layout";
-import { StatsCard, MetricCard, CustomCard } from "../../components/Card";
-import { QuickFilterBar } from "../../components/FilterBar";
-import { AdminRoute } from "../../components/ProtectedRoute";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Layout from '../../components/Layout';
+import { StatsCard, MetricCard, CustomCard } from '../../components/Card';
+import { QuickFilterBar } from '../../components/FilterBar';
+import { AdminRoute } from '../../components/ProtectedRoute';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalCustomers: { value: 0, trend: "neutral", trendValue: "0%" },
-    totalRevenue: { value: 0, trend: "neutral", trendValue: "0%" },
-    activeOrders: { value: 0, trend: "neutral", trendValue: "0%" },
-    activeSubscriptions: { value: 0, trend: "neutral", trendValue: "0%" },
+    totalCustomers: { value: 0, trend: 'neutral', trendValue: '0%' },
+    totalRevenue: { value: 0, trend: 'neutral', trendValue: '0%' },
+    activeOrders: { value: 0, trend: 'neutral', trendValue: '0%' },
+    activeSubscriptions: { value: 0, trend: 'neutral', trendValue: '0%' },
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("7d");
+  const [timeRange, setTimeRange] = useState('7d');
   const router = useRouter();
 
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch real-time stats with authentication
+        const [statsRes, activityRes] = await Promise.all([
+          fetch(`/api/dashboard/stats?range=${timeRange}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+            },
+          }),
+          fetch('/api/dashboard/activity?limit=10', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+            },
+          }),
+        ]);
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData.data);
+        } else {
+          // Fallback data for demo
+          setStats({
+            totalCustomers: { value: '1,234', trend: 'up', trendValue: '+12%' },
+            totalRevenue: {
+              value: '₹4,56,789',
+              trend: 'up',
+              trendValue: '+8.2%',
+            },
+            activeOrders: { value: '89', trend: 'down', trendValue: '-3%' },
+            activeSubscriptions: {
+              value: '567',
+              trend: 'up',
+              trendValue: '+15%',
+            },
+          });
+        }
+
+        if (activityRes.ok) {
+          const activityData = await activityRes.json();
+          setRecentActivity(activityData.data || []);
+        } else {
+          // Fallback data for demo
+          setRecentActivity([
+            {
+              id: 1,
+              type: 'order',
+              message: 'New order from John Doe',
+              time: '2 minutes ago',
+            },
+            {
+              id: 2,
+              type: 'customer',
+              message: 'New customer registration: Jane Smith',
+              time: '15 minutes ago',
+            },
+            {
+              id: 3,
+              type: 'payment',
+              message: 'Payment received: ₹2,500',
+              time: '1 hour ago',
+            },
+            {
+              id: 4,
+              type: 'subscription',
+              message: 'Subscription renewed: Premium Plan',
+              time: '2 hours ago',
+            },
+            {
+              id: 5,
+              type: 'order',
+              message: 'Order completed: #ORD-1234',
+              time: '3 hours ago',
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        // Set fallback data on error
+        setStats({
+          totalCustomers: { value: '1,234', trend: 'up', trendValue: '+12%' },
+          totalRevenue: { value: '₹4,56,789', trend: 'up', trendValue: '+8.2%' },
+          activeOrders: { value: '89', trend: 'down', trendValue: '-3%' },
+          activeSubscriptions: { value: '567', trend: 'up', trendValue: '+15%' },
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchDashboardData();
 
     // Set up real-time updates every 60 seconds
@@ -29,100 +120,9 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, [timeRange]);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch real-time stats with authentication
-      const [statsRes, activityRes] = await Promise.all([
-        fetch(`/api/dashboard/stats?range=${timeRange}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
-          },
-        }),
-        fetch("/api/dashboard/activity?limit=10", {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
-          },
-        }),
-      ]);
-
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData.data);
-      } else {
-        // Fallback data for demo
-        setStats({
-          totalCustomers: { value: "1,234", trend: "up", trendValue: "+12%" },
-          totalRevenue: {
-            value: "₹4,56,789",
-            trend: "up",
-            trendValue: "+8.2%",
-          },
-          activeOrders: { value: "89", trend: "down", trendValue: "-3%" },
-          activeSubscriptions: {
-            value: "567",
-            trend: "up",
-            trendValue: "+15%",
-          },
-        });
-      }
-
-      if (activityRes.ok) {
-        const activityData = await activityRes.json();
-        setRecentActivity(activityData.data || []);
-      } else {
-        // Fallback data for demo
-        setRecentActivity([
-          {
-            id: 1,
-            type: "order",
-            message: "New order from John Doe",
-            time: "2 minutes ago",
-          },
-          {
-            id: 2,
-            type: "customer",
-            message: "New customer registration: Jane Smith",
-            time: "15 minutes ago",
-          },
-          {
-            id: 3,
-            type: "payment",
-            message: "Payment received: ₹2,500",
-            time: "1 hour ago",
-          },
-          {
-            id: 4,
-            type: "subscription",
-            message: "Subscription renewed: Premium Plan",
-            time: "2 hours ago",
-          },
-          {
-            id: 5,
-            type: "order",
-            message: "Order completed: #ORD-1234",
-            time: "3 hours ago",
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      // Set fallback data on error
-      setStats({
-        totalCustomers: { value: "1,234", trend: "up", trendValue: "+12%" },
-        totalRevenue: { value: "₹4,56,789", trend: "up", trendValue: "+8.2%" },
-        activeOrders: { value: "89", trend: "down", trendValue: "-3%" },
-        activeSubscriptions: { value: "567", trend: "up", trendValue: "+15%" },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getActivityIcon = (type) => {
+  const getActivityIcon = type => {
     switch (type) {
-      case "order":
+      case 'order':
         return (
           <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
             <svg
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
             </svg>
           </div>
         );
-      case "customer":
+      case 'customer':
         return (
           <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
             <svg
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
             </svg>
           </div>
         );
-      case "payment":
+      case 'payment':
         return (
           <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
             <svg
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
             </svg>
           </div>
         );
-      case "subscription":
+      case 'subscription':
         return (
           <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
             <svg
@@ -223,10 +223,10 @@ export default function AdminDashboard() {
           <div className="mb-8">
             <QuickFilterBar
               options={[
-                { label: "Last 7 days", value: "7d" },
-                { label: "Last 30 days", value: "30d" },
-                { label: "Last 90 days", value: "90d" },
-                { label: "This year", value: "1y" },
+                { label: 'Last 7 days', value: '7d' },
+                { label: 'Last 30 days', value: '30d' },
+                { label: 'Last 90 days', value: '90d' },
+                { label: 'This year', value: '1y' },
               ]}
               selectedValue={timeRange}
               onSelectionChange={setTimeRange}
@@ -244,7 +244,7 @@ export default function AdminDashboard() {
               trendValue={stats.totalCustomers?.trendValue || '0%'}
               color="blue"
               loading={loading}
-              onClick={() => router.push("/crm")}
+              onClick={() => router.push('/crm')}
             />
 
             <StatsCard
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
               trendValue={stats.totalRevenue?.trendValue || '0%'}
               color="green"
               loading={loading}
-              onClick={() => router.push("/billing")}
+              onClick={() => router.push('/billing')}
             />
 
             <StatsCard
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
               trendValue={stats.activeOrders?.trendValue || '0%'}
               color="orange"
               loading={loading}
-              onClick={() => router.push("/orders")}
+              onClick={() => router.push('/orders')}
             />
 
             <StatsCard
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
               trendValue={stats.activeSubscriptions?.trendValue || '0%'}
               color="purple"
               loading={loading}
-              onClick={() => router.push("/subscriptions")}
+              onClick={() => router.push('/subscriptions')}
             />
           </div>
 
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
             <StatsCard
               title="Wallet Balance"
               value={stats.walletBalance?.value || '₹0'}
-              subtitle={stats.walletBalance?.description || "Total customer wallets"}
+              subtitle={stats.walletBalance?.description || 'Total customer wallets'}
               trend={stats.walletBalance?.trend || 'neutral'}
               trendValue={stats.walletBalance?.trendValue || '0%'}
               color="green"
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
             <StatsCard
               title="Avg Order Value"
               value={stats.averageOrderValue?.value || '₹0'}
-              subtitle={stats.averageOrderValue?.description || "Average order value"}
+              subtitle={stats.averageOrderValue?.description || 'Average order value'}
               trend={stats.averageOrderValue?.trend || 'neutral'}
               trendValue={stats.averageOrderValue?.trendValue || '0%'}
               color="yellow"
@@ -320,7 +320,7 @@ export default function AdminDashboard() {
             <StatsCard
               title="Customer Satisfaction"
               value={stats.customerSatisfaction?.value || '0%'}
-              subtitle={stats.customerSatisfaction?.description || "Customer satisfaction rate"}
+              subtitle={stats.customerSatisfaction?.description || 'Customer satisfaction rate'}
               trend={stats.customerSatisfaction?.trend || 'neutral'}
               trendValue={stats.customerSatisfaction?.trendValue || '0%'}
               color="green"
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
             <StatsCard
               title="Kitchen Utilization"
               value={stats.kitchenUtilization?.value || '0%'}
-              subtitle={stats.kitchenUtilization?.description || "Kitchen capacity utilization"}
+              subtitle={stats.kitchenUtilization?.description || 'Kitchen capacity utilization'}
               trend={stats.kitchenUtilization?.trend || 'neutral'}
               trendValue={stats.kitchenUtilization?.trendValue || '0%'}
               color="orange"
@@ -345,12 +345,8 @@ export default function AdminDashboard() {
                 </h3>
                 <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
               </div>
-              <div className="text-2xl font-bold text-green-600 mb-2">
-                Online
-              </div>
-              <p className="text-sm text-gray-600">
-                All systems operational
-              </p>
+              <div className="text-2xl font-bold text-green-600 mb-2">Online</div>
+              <p className="text-sm text-gray-600">All systems operational</p>
             </div>
 
             {/* Last Updated Card */}
@@ -364,9 +360,7 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold text-gray-900 mb-2">
                 {stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleTimeString() : 'Never'}
               </div>
-              <p className="text-sm text-gray-600">
-                Auto-refresh: 60s
-              </p>
+              <p className="text-sm text-gray-600">Auto-refresh: 60s</p>
             </div>
           </div>
 
@@ -376,7 +370,7 @@ export default function AdminDashboard() {
             <CustomCard title="Recent Activity" color="gray" loading={loading}>
               {!loading && (
                 <div className="space-y-4">
-                  {recentActivity.map((activity) => (
+                  {recentActivity.map(activity => (
                     <div key={activity.id} className="flex items-start space-x-3">
                       {getActivityIcon(activity.type)}
                       <div className="flex-1 min-w-0">
@@ -407,8 +401,18 @@ export default function AdminDashboard() {
                     className="w-full flex items-center justify-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                   >
                     <span className="text-sm font-medium text-blue-900">Add New Customer</span>
-                    <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <svg
+                      className="h-4 w-4 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
                     </svg>
                   </button>
 
@@ -417,8 +421,18 @@ export default function AdminDashboard() {
                     className="w-full flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                   >
                     <span className="text-sm font-medium text-green-900">Create Order</span>
-                    <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <svg
+                      className="h-4 w-4 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                      />
                     </svg>
                   </button>
 
@@ -427,8 +441,18 @@ export default function AdminDashboard() {
                     className="w-full flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
                   >
                     <span className="text-sm font-medium text-yellow-900">Generate Invoice</span>
-                    <svg className="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="h-4 w-4 text-yellow-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                   </button>
 
@@ -437,8 +461,18 @@ export default function AdminDashboard() {
                     className="w-full flex items-center justify-between p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
                   >
                     <span className="text-sm font-medium text-purple-900">View Analytics</span>
-                    <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    <svg
+                      className="h-4 w-4 text-purple-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
                     </svg>
                   </button>
                 </div>

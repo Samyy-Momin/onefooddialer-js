@@ -1,9 +1,9 @@
 // OneFoodDialer - Enhanced Navbar with Authentication
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { supabase } from "../lib/supabase";
-import { signOutWithSupabase, getCurrentUserWithBusiness } from "../lib/auth";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { supabase } from '../lib/supabase';
+import { signOutWithSupabase, getCurrentUserWithBusiness } from '../lib/auth';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -13,39 +13,39 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          await loadUserProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error checking user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     checkUser();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if (event === 'SIGNED_IN' && session) {
         await loadUserProfile(session.user.id);
-      } else if (event === "SIGNED_OUT") {
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        localStorage.removeItem("user");
+        localStorage.removeItem('user');
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkUser = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        await loadUserProfile(session.user.id);
-      }
-    } catch (error) {
-      console.error("Error checking user:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadUserProfile = async (userId) => {
+  const loadUserProfile = async userId => {
     try {
       const userWithBusiness = await getCurrentUserWithBusiness(userId);
       setUser(userWithBusiness);
@@ -53,7 +53,7 @@ export default function Navbar() {
       // Update localStorage
       if (userWithBusiness) {
         localStorage.setItem(
-          "user",
+          'user',
           JSON.stringify({
             id: userWithBusiness.id,
             email: userWithBusiness.email,
@@ -65,7 +65,7 @@ export default function Navbar() {
         );
       }
     } catch (error) {
-      console.error("Error loading user profile:", error);
+      console.error('Error loading user profile:', error);
     }
   };
 
@@ -73,22 +73,22 @@ export default function Navbar() {
     try {
       await signOutWithSupabase();
       setUser(null);
-      localStorage.removeItem("user");
-      router.push("/login");
+      localStorage.removeItem('user');
+      router.push('/login');
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error('Error signing out:', error);
     }
   };
 
-  const switchBusiness = (businessId) => {
+  const switchBusiness = businessId => {
     // Update current business in user state
     const updatedUser = {
       ...user,
       businessId,
-      currentBusiness: user.businesses.find((b) => b.id === businessId),
+      currentBusiness: user.businesses.find(b => b.id === businessId),
     };
     setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem('user', JSON.stringify(updatedUser));
     setShowBusinessMenu(false);
 
     // Refresh the page to update data
@@ -98,59 +98,59 @@ export default function Navbar() {
   const getNavLinks = () => {
     if (!user) return [];
 
-    const baseLinks = [{ href: "/", label: "Home" }];
+    const baseLinks = [{ href: '/', label: 'Home' }];
 
     switch (user.role) {
-      case "SUPER_ADMIN":
+      case 'SUPER_ADMIN':
         return [
           ...baseLinks,
-          { href: "/dashboard/admin", label: "Admin Dashboard" },
-          { href: "/businesses", label: "Businesses" },
-          { href: "/users", label: "Users" },
+          { href: '/dashboard/admin', label: 'Admin Dashboard' },
+          { href: '/businesses', label: 'Businesses' },
+          { href: '/users', label: 'Users' },
         ];
-      case "BUSINESS_OWNER":
+      case 'BUSINESS_OWNER':
         return [
           ...baseLinks,
-          { href: "/dashboard/admin", label: "Dashboard" },
-          { href: "/admin", label: "Management" },
-          { href: "/billing", label: "Billing" },
-          { href: "/analytics", label: "Analytics" },
+          { href: '/dashboard/admin', label: 'Dashboard' },
+          { href: '/admin', label: 'Management' },
+          { href: '/billing', label: 'Billing' },
+          { href: '/analytics', label: 'Analytics' },
         ];
-      case "KITCHEN_MANAGER":
-      case "STAFF":
+      case 'KITCHEN_MANAGER':
+      case 'STAFF':
         return [
           ...baseLinks,
-          { href: "/dashboard/kitchen", label: "Kitchen Dashboard" },
-          { href: "/orders", label: "Orders" },
-          { href: "/inventory", label: "Inventory" },
+          { href: '/dashboard/kitchen', label: 'Kitchen Dashboard' },
+          { href: '/orders', label: 'Orders' },
+          { href: '/inventory', label: 'Inventory' },
         ];
-      case "CUSTOMER":
+      case 'CUSTOMER':
         return [
           ...baseLinks,
-          { href: "/customer", label: "My Dashboard" },
-          { href: "/subscriptions", label: "Subscriptions" },
-          { href: "/orders", label: "Orders" },
-          { href: "/wallet", label: "Wallet" },
+          { href: '/customer', label: 'My Dashboard' },
+          { href: '/subscriptions', label: 'Subscriptions' },
+          { href: '/orders', label: 'Orders' },
+          { href: '/wallet', label: 'Wallet' },
         ];
       default:
         return baseLinks;
     }
   };
 
-  const getRoleBadgeColor = (role) => {
+  const getRoleBadgeColor = role => {
     switch (role) {
-      case "SUPER_ADMIN":
-        return "bg-red-100 text-red-800";
-      case "BUSINESS_OWNER":
-        return "bg-purple-100 text-purple-800";
-      case "KITCHEN_MANAGER":
-        return "bg-orange-100 text-orange-800";
-      case "STAFF":
-        return "bg-blue-100 text-blue-800";
-      case "CUSTOMER":
-        return "bg-green-100 text-green-800";
+      case 'SUPER_ADMIN':
+        return 'bg-red-100 text-red-800';
+      case 'BUSINESS_OWNER':
+        return 'bg-purple-100 text-purple-800';
+      case 'KITCHEN_MANAGER':
+        return 'bg-orange-100 text-orange-800';
+      case 'STAFF':
+        return 'bg-blue-100 text-blue-800';
+      case 'CUSTOMER':
+        return 'bg-green-100 text-green-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -160,9 +160,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <div className="text-xl font-bold text-blue-600">
-                OneFoodDialer
-              </div>
+              <div className="text-xl font-bold text-blue-600">OneFoodDialer</div>
             </div>
             <div className="flex items-center">
               <div className="animate-pulse bg-gray-200 h-8 w-20 rounded"></div>
@@ -187,14 +185,14 @@ export default function Navbar() {
             {user ? (
               <>
                 {/* Navigation Links */}
-                {getNavLinks().map((link) => (
+                {getNavLinks().map(link => (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       router.pathname === link.href
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-gray-100"
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
                     }`}
                   >
                     {link.label}
@@ -209,7 +207,7 @@ export default function Navbar() {
                       className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100"
                     >
                       <span className="truncate max-w-32">
-                        {user.currentBusiness?.name || "Select Business"}
+                        {user.currentBusiness?.name || 'Select Business'}
                       </span>
                       <svg
                         className="ml-1 h-4 w-4"
@@ -229,14 +227,14 @@ export default function Navbar() {
                     {showBusinessMenu && (
                       <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                         <div className="py-1">
-                          {user.businesses.map((business) => (
+                          {user.businesses.map(business => (
                             <button
                               key={business.id}
                               onClick={() => switchBusiness(business.id)}
                               className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
                                 business.id === user.businessId
-                                  ? "bg-blue-50 text-blue-700"
-                                  : "text-gray-700"
+                                  ? 'bg-blue-50 text-blue-700'
+                                  : 'text-gray-700'
                               }`}
                             >
                               {business.name}
@@ -273,16 +271,11 @@ export default function Navbar() {
                             user.role
                           )}`}
                         >
-                          {user.role.replace("_", " ")}
+                          {user.role.replace('_', ' ')}
                         </div>
                       </div>
                     </div>
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"

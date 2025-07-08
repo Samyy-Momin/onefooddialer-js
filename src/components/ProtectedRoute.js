@@ -4,11 +4,11 @@ import { useRouter } from 'next/router';
 import { supabase } from '../lib/supabase';
 import { getCurrentUserWithBusiness } from '../lib/auth';
 
-export default function ProtectedRoute({ 
-  children, 
-  allowedRoles = [], 
+export default function ProtectedRoute({
+  children,
+  allowedRoles = [],
   requireBusiness = true,
-  redirectTo = '/login' 
+  redirectTo = '/login',
 }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,46 +16,52 @@ export default function ProtectedRoute({
   const router = useRouter();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    const checkAuth = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-  const checkAuth = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
+        if (!session) {
+          router.push(redirectTo);
+          return;
+        }
+
+        const userWithBusiness = await getCurrentUserWithBusiness(session.user.id);
+
+        if (!userWithBusiness) {
+          router.push('/unauthorized');
+          return;
+        }
+
+        // Check role authorization
+        if (allowedRoles.length > 0 && !allowedRoles.includes(userWithBusiness.role)) {
+          router.push('/unauthorized');
+          return;
+        }
+
+        // Check business requirement
+        if (
+          requireBusiness &&
+          !userWithBusiness.businessId &&
+          userWithBusiness.role !== 'SUPER_ADMIN'
+        ) {
+          router.push('/setup-business');
+          return;
+        }
+
+        setUser(userWithBusiness);
+        setAuthorized(true);
+      } catch (error) {
+        console.error('Auth check failed:', error);
         router.push(redirectTo);
-        return;
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const userWithBusiness = await getCurrentUserWithBusiness(session.user.id);
-      
-      if (!userWithBusiness) {
-        router.push('/unauthorized');
-        return;
-      }
-
-      // Check role authorization
-      if (allowedRoles.length > 0 && !allowedRoles.includes(userWithBusiness.role)) {
-        router.push('/unauthorized');
-        return;
-      }
-
-      // Check business requirement
-      if (requireBusiness && !userWithBusiness.businessId && userWithBusiness.role !== 'SUPER_ADMIN') {
-        router.push('/setup-business');
-        return;
-      }
-
-      setUser(userWithBusiness);
-      setAuthorized(true);
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      router.push(redirectTo);
-    } finally {
-      setLoading(false);
-    }
-  };
+    checkAuth();
+  }, [allowedRoles, requireBusiness, redirectTo, router]);
 
   if (loading) {
     return (
@@ -78,26 +84,16 @@ export default function ProtectedRoute({
 // Specific role-based wrappers
 export function AdminRoute({ children }) {
   return (
-    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BUSINESS_OWNER']}>
-      {children}
-    </ProtectedRoute>
+    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BUSINESS_OWNER']}>{children}</ProtectedRoute>
   );
 }
 
 export function CustomerRoute({ children }) {
-  return (
-    <ProtectedRoute allowedRoles={['CUSTOMER']}>
-      {children}
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute allowedRoles={['CUSTOMER']}>{children}</ProtectedRoute>;
 }
 
 export function KitchenRoute({ children }) {
-  return (
-    <ProtectedRoute allowedRoles={['KITCHEN_MANAGER', 'STAFF']}>
-      {children}
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute allowedRoles={['KITCHEN_MANAGER', 'STAFF']}>{children}</ProtectedRoute>;
 }
 
 export function BusinessRoute({ children }) {
