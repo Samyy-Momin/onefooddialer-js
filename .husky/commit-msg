@@ -1,5 +1,4 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+#!/usr/bin/env sh
 
 # OneFoodDialer Commit Message Hook
 echo "📝 Validating commit message..."
