@@ -48,7 +48,7 @@ export const calculateGST = (amount, cgstRate = 9, sgstRate = 9) => {
   const cgst = (amount * cgstRate) / 100;
   const sgst = (amount * sgstRate) / 100;
   const total = amount + cgst + sgst;
-  
+
   return {
     subtotal: amount,
     cgst: cgst,
@@ -59,17 +59,17 @@ export const calculateGST = (amount, cgstRate = 9, sgstRate = 9) => {
 };
 
 // Validation utilities
-export const validateEmail = (email) => {
+export const validateEmail = email => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-export const validatePhone = (phone) => {
+export const validatePhone = phone => {
   const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
   return phoneRegex.test(phone);
 };
 
-export const validateGST = (gstNumber) => {
+export const validateGST = gstNumber => {
   const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   return gstRegex.test(gstNumber);
 };
@@ -77,7 +77,7 @@ export const validateGST = (gstNumber) => {
 // Subscription utilities
 export const calculateNextBillingDate = (startDate, planType) => {
   const start = new Date(startDate);
-  
+
   switch (planType) {
     case 'DAILY':
       return addDays(start, 1);
@@ -93,30 +93,30 @@ export const calculateNextBillingDate = (startDate, planType) => {
 // Error handling
 export const handleApiError = (error, res) => {
   console.error('API Error:', error);
-  
+
   if (error.code === 'P2002') {
     return res.status(400).json({ error: 'Duplicate entry' });
   }
-  
+
   if (error.code === 'P2025') {
     return res.status(404).json({ error: 'Record not found' });
   }
-  
+
   return res.status(500).json({ error: 'Internal server error' });
 };
 
 // Pagination utilities
-export const getPaginationParams = (query) => {
+export const getPaginationParams = query => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const skip = (page - 1) * limit;
-  
+
   return { page, limit, skip };
 };
 
 export const createPaginationResponse = (data, total, page, limit) => {
   const totalPages = Math.ceil(total / limit);
-  
+
   return {
     data,
     pagination: {

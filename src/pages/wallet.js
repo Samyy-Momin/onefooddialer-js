@@ -1,11 +1,11 @@
 // OneFoodDialer - Wallet Page using ListPage Component
-import React from "react";
-import Navbar from "../components/Navbar";
-import ListPage from "../components/ListPage";
-import { AdminRoute } from "../components/ProtectedRoute";
+import React from 'react';
+import Navbar from '../components/Navbar';
+import ListPage from '../components/ListPage';
+import { AdminRoute } from '../components/ProtectedRoute';
 
 export default function Wallet() {
-  const handleRowClick = (customer) => {
+  const handleRowClick = customer => {
     // Navigate to customer wallet detail page
     window.location.href = `/wallet/${customer.id}`;
   };
@@ -17,39 +17,39 @@ export default function Wallet() {
         title="Wallet Management"
         dataUrl="/api/customers"
         columns={[
-          { label: "Customer Code", key: "customerCode" },
-          { label: "Customer Name", key: "user.profile.firstName" },
-          { label: "Email", key: "user.email" },
-          { label: "Phone", key: "user.profile.phone" },
-          { label: "Wallet Balance", key: "walletBalance" },
-          { label: "Loyalty Points", key: "loyaltyPoints" },
-          { label: "Last Transaction", key: "lastTransactionDate" },
-          { label: "Total Spent", key: "totalSpent" },
-          { label: "Status", key: "isActive" },
+          { label: 'Customer Code', key: 'customerCode' },
+          { label: 'Customer Name', key: 'user.profile.firstName' },
+          { label: 'Email', key: 'user.email' },
+          { label: 'Phone', key: 'user.profile.phone' },
+          { label: 'Wallet Balance', key: 'walletBalance' },
+          { label: 'Loyalty Points', key: 'loyaltyPoints' },
+          { label: 'Last Transaction', key: 'lastTransactionDate' },
+          { label: 'Total Spent', key: 'totalSpent' },
+          { label: 'Status', key: 'isActive' },
         ]}
         filters={[
           {
-            label: "Search Customer",
-            key: "search",
-            type: "text",
+            label: 'Search Customer',
+            key: 'search',
+            type: 'text',
           },
           {
-            label: "Balance Range",
-            key: "balanceRange",
-            type: "select",
-            options: ["0-100", "100-500", "500-1000", "1000+"],
+            label: 'Balance Range',
+            key: 'balanceRange',
+            type: 'select',
+            options: ['0-100', '100-500', '500-1000', '1000+'],
           },
           {
-            label: "Loyalty Tier",
-            key: "loyaltyTier",
-            type: "select",
-            options: ["bronze", "silver", "gold", "platinum"],
+            label: 'Loyalty Tier',
+            key: 'loyaltyTier',
+            type: 'select',
+            options: ['bronze', 'silver', 'gold', 'platinum'],
           },
           {
-            label: "Status",
-            key: "status",
-            type: "select",
-            options: ["active", "inactive"],
+            label: 'Status',
+            key: 'status',
+            type: 'select',
+            options: ['active', 'inactive'],
           },
         ]}
         renderActions={

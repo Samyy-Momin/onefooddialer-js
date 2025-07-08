@@ -18,30 +18,29 @@ export default function CreateCustomer() {
       city: '',
       state: '',
       zipCode: '',
-      country: 'India'
+      country: 'India',
     },
     initialWalletBalance: 0,
     loyaltyPoints: 0,
-    sendWelcomeEmail: true
+    sendWelcomeEmail: true,
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name.startsWith('address.')) {
       const addressField = name.split('.')[1];
       setFormData(prev => ({
         ...prev,
         address: {
           ...prev.address,
-          [addressField]: value
-        }
+          [addressField]: value,
+        },
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : 
-                type === 'number' ? parseFloat(value) || 0 : value
+        [name]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) || 0 : value,
       }));
     }
   };
@@ -58,7 +57,10 @@ export default function CreateCustomer() {
       return false;
     }
 
-    if (formData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+    if (
+      formData.phone &&
+      !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))
+    ) {
       setError('Please enter a valid phone number');
       return false;
     }
@@ -66,7 +68,7 @@ export default function CreateCustomer() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
@@ -81,7 +83,7 @@ export default function CreateCustomer() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+          Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
         },
         body: JSON.stringify(formData),
       });
@@ -94,7 +96,6 @@ export default function CreateCustomer() {
 
       // Success - redirect to CRM page
       router.push('/crm?success=Customer created successfully');
-
     } catch (error) {
       console.error('Error creating customer:', error);
       setError(error.message || 'Failed to create customer. Please try again.');
@@ -115,15 +116,28 @@ export default function CreateCustomer() {
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex">
-                <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5 text-red-400 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <p className="text-red-800">{error}</p>
               </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          >
             {/* Basic Information */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
@@ -208,9 +222,7 @@ export default function CreateCustomer() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    City
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                   <input
                     type="text"
                     name="address.city"
@@ -222,9 +234,7 @@ export default function CreateCustomer() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    State
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                   <input
                     type="text"
                     name="address.state"
@@ -236,9 +246,7 @@ export default function CreateCustomer() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ZIP Code
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
                   <input
                     type="text"
                     name="address.zipCode"
@@ -250,9 +258,7 @@ export default function CreateCustomer() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Country
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                   <select
                     name="address.country"
                     value={formData.address.country}
@@ -335,9 +341,24 @@ export default function CreateCustomer() {
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
               >
                 {loading && (
-                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 )}
                 {loading ? 'Creating Customer...' : 'Create Customer'}

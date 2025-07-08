@@ -1,6 +1,9 @@
 // OneFoodDialer - Supabase Client Configuration
 import { createClient } from '@supabase/supabase-js';
-import { createClientComponentClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import {
+  createClientComponentClient,
+  createServerComponentClient,
+} from '@supabase/auth-helpers-nextjs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -24,20 +27,16 @@ export const createSupabaseClient = () => {
 };
 
 // Server component helper
-export const createSupabaseServerClient = (context) => {
+export const createSupabaseServerClient = context => {
   return createServerComponentClient(context);
 };
 
 // Admin client with service role key
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+export const supabaseAdmin = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 export default supabase;

@@ -1,6 +1,7 @@
 # OneFoodDialer Deployment Guide
 
-This guide covers deploying OneFoodDialer to production using Vercel with GitHub integration.
+This guide covers deploying OneFoodDialer to production using Vercel with GitHub
+integration.
 
 ## Prerequisites
 
@@ -24,6 +25,7 @@ This guide covers deploying OneFoodDialer to production using Vercel with GitHub
 ### 2. Monitoring Setup
 
 #### Sentry (Error Monitoring)
+
 1. Create account at [sentry.io](https://sentry.io)
 2. Create new project for "Next.js"
 3. Get your DSN and add to environment variables:
@@ -33,12 +35,14 @@ This guide covers deploying OneFoodDialer to production using Vercel with GitHub
    - `SENTRY_AUTH_TOKEN`
 
 #### LogRocket (Session Replay)
+
 1. Create account at [logrocket.com](https://logrocket.com)
 2. Create new application
 3. Get your App ID:
    - `NEXT_PUBLIC_LOGROCKET_APP_ID`
 
 #### Google Analytics (Optional)
+
 1. Create GA4 property
 2. Get Measurement ID:
    - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
@@ -61,9 +65,11 @@ git push -u origin main
 
 ### 2. GitHub Secrets
 
-Add these secrets in GitHub repository settings → Secrets and variables → Actions:
+Add these secrets in GitHub repository settings → Secrets and variables →
+Actions:
 
 **Required Secrets:**
+
 - `VERCEL_TOKEN` - Vercel API token
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
@@ -73,6 +79,7 @@ Add these secrets in GitHub repository settings → Secrets and variables → Ac
 - `DATABASE_URL`
 
 **Optional Monitoring Secrets:**
+
 - `NEXT_PUBLIC_SENTRY_DSN`
 - `SENTRY_AUTH_TOKEN`
 - `SENTRY_ORG`
@@ -96,6 +103,7 @@ Add these secrets in GitHub repository settings → Secrets and variables → Ac
 ### 2. Environment Variables
 
 Add all environment variables in Vercel dashboard:
+
 1. Go to Project Settings → Environment Variables
 2. Add all variables from `.env.example`
 3. Set different values for Production, Preview, and Development
@@ -134,7 +142,8 @@ npm run db:seed
 
 ### 1. Sentry Setup
 
-The application is pre-configured with Sentry. Just add the environment variables:
+The application is pre-configured with Sentry. Just add the environment
+variables:
 
 - Error tracking
 - Performance monitoring
@@ -143,11 +152,13 @@ The application is pre-configured with Sentry. Just add the environment variable
 
 ### 2. LogRocket Setup
 
-Session replay is automatically initialized when `NEXT_PUBLIC_LOGROCKET_APP_ID` is set.
+Session replay is automatically initialized when `NEXT_PUBLIC_LOGROCKET_APP_ID`
+is set.
 
 ### 3. Health Checks
 
 The application includes a health check endpoint at `/api/health` that monitors:
+
 - Database connectivity
 - Supabase connection
 - Memory usage
@@ -188,12 +199,14 @@ npm run deploy:preview
 ### 1. Uptime Monitoring
 
 Set up uptime monitoring using:
+
 - Vercel Analytics (built-in)
 - UptimeRobot
 - Pingdom
 - StatusCake
 
 Monitor these endpoints:
+
 - `https://yourdomain.com/api/health`
 - `https://yourdomain.com/login`
 - `https://yourdomain.com/dashboard/admin`
@@ -208,6 +221,7 @@ Monitor these endpoints:
 ### 3. Business Metrics
 
 Track key business metrics:
+
 - User registrations
 - Subscription creations
 - Revenue metrics

@@ -12,9 +12,10 @@ export const swaggerSpec = {
   },
   servers: [
     {
-      url: process.env.NODE_ENV === 'production' 
-        ? 'https://onefooddialer.vercel.app/api' 
-        : 'http://localhost:3000/api',
+      url:
+        process.env.NODE_ENV === 'production'
+          ? 'https://onefooddialer.vercel.app/api'
+          : 'http://localhost:3000/api',
       description: process.env.NODE_ENV === 'production' ? 'Production' : 'Development',
     },
   ],
@@ -32,9 +33,9 @@ export const swaggerSpec = {
         properties: {
           id: { type: 'string' },
           email: { type: 'string', format: 'email' },
-          role: { 
-            type: 'string', 
-            enum: ['SUPER_ADMIN', 'BUSINESS_OWNER', 'KITCHEN_MANAGER', 'STAFF', 'CUSTOMER'] 
+          role: {
+            type: 'string',
+            enum: ['SUPER_ADMIN', 'BUSINESS_OWNER', 'KITCHEN_MANAGER', 'STAFF', 'CUSTOMER'],
           },
           profile: { $ref: '#/components/schemas/UserProfile' },
           createdAt: { type: 'string', format: 'date-time' },
@@ -70,9 +71,9 @@ export const swaggerSpec = {
           customerId: { type: 'string' },
           planId: { type: 'string' },
           kitchenId: { type: 'string' },
-          status: { 
-            type: 'string', 
-            enum: ['ACTIVE', 'PAUSED', 'CANCELLED', 'EXPIRED'] 
+          status: {
+            type: 'string',
+            enum: ['ACTIVE', 'PAUSED', 'CANCELLED', 'EXPIRED'],
           },
           startDate: { type: 'string', format: 'date' },
           endDate: { type: 'string', format: 'date' },
@@ -103,9 +104,17 @@ export const swaggerSpec = {
           customerId: { type: 'string' },
           subscriptionId: { type: 'string' },
           kitchenId: { type: 'string' },
-          status: { 
-            type: 'string', 
-            enum: ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'] 
+          status: {
+            type: 'string',
+            enum: [
+              'PENDING',
+              'CONFIRMED',
+              'PREPARING',
+              'READY',
+              'OUT_FOR_DELIVERY',
+              'DELIVERED',
+              'CANCELLED',
+            ],
           },
           type: { type: 'string', enum: ['SUBSCRIPTION', 'BULK', 'ONE_TIME'] },
           scheduledFor: { type: 'string', format: 'date-time' },
@@ -123,9 +132,9 @@ export const swaggerSpec = {
           businessId: { type: 'string' },
           totalAmount: { type: 'number', format: 'float' },
           taxAmount: { type: 'number', format: 'float' },
-          status: { 
-            type: 'string', 
-            enum: ['PENDING', 'PAID', 'OVERDUE', 'CANCELLED', 'REFUNDED'] 
+          status: {
+            type: 'string',
+            enum: ['PENDING', 'PAID', 'OVERDUE', 'CANCELLED', 'REFUNDED'],
           },
           dueDate: { type: 'string', format: 'date' },
           paidAt: { type: 'string', format: 'date-time' },

@@ -12,22 +12,17 @@ export default function ApiDocs() {
         try {
           // Import Swagger UI bundle
           const SwaggerUIBundle = (await import('swagger-ui-dist/swagger-ui-bundle.js')).default;
-          
+
           SwaggerUIBundle({
             url: '/api/docs',
             dom_id: '#swagger-ui',
             deepLinking: true,
-            presets: [
-              SwaggerUIBundle.presets.apis,
-              SwaggerUIBundle.presets.standalone
-            ],
-            plugins: [
-              SwaggerUIBundle.plugins.DownloadUrl
-            ],
-            layout: "StandaloneLayout",
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.presets.standalone],
+            plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+            layout: 'StandaloneLayout',
             tryItOutEnabled: true,
             supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-            requestInterceptor: (request) => {
+            requestInterceptor: request => {
               // Add auth token if available
               const token = localStorage.getItem('supabase.auth.token');
               if (token) {
@@ -35,7 +30,7 @@ export default function ApiDocs() {
               }
               return request;
             },
-            responseInterceptor: (response) => {
+            responseInterceptor: response => {
               // Handle response logging
               console.log('API Response:', response);
               return response;
@@ -43,9 +38,9 @@ export default function ApiDocs() {
             onComplete: () => {
               console.log('Swagger UI loaded successfully');
             },
-            onFailure: (error) => {
+            onFailure: error => {
               console.error('Swagger UI failed to load:', error);
-            }
+            },
           });
         } catch (error) {
           console.error('Failed to load Swagger UI:', error);
@@ -61,7 +56,10 @@ export default function ApiDocs() {
       <Layout title="API Documentation">
         <Head>
           <title>API Documentation - OneFoodDialer</title>
-          <meta name="description" content="Complete API documentation for OneFoodDialer subscription management system" />
+          <meta
+            name="description"
+            content="Complete API documentation for OneFoodDialer subscription management system"
+          />
           <link
             rel="stylesheet"
             type="text/css"
@@ -81,7 +79,7 @@ export default function ApiDocs() {
             }
           `}</style>
         </Head>
-        
+
         <div className="min-h-screen bg-gray-50">
           {/* Header Section */}
           <div className="bg-white shadow-sm border-b border-gray-200">
@@ -91,10 +89,11 @@ export default function ApiDocs() {
                   OneFoodDialer API Documentation
                 </h1>
                 <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                  Comprehensive REST API documentation for the OneFoodDialer subscription-based 
-                  business management system. Explore endpoints, test requests, and integrate with ease.
+                  Comprehensive REST API documentation for the OneFoodDialer subscription-based
+                  business management system. Explore endpoints, test requests, and integrate with
+                  ease.
                 </p>
-                
+
                 {/* Quick Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -122,23 +121,43 @@ export default function ApiDocs() {
                     download="onefooddialer-openapi.json"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="h-4 w-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                     Download OpenAPI Spec
                   </a>
-                  
+
                   <a
                     href="/docs/postman-collection.json"
                     download="onefooddialer-postman.json"
                     className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                   >
-                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    <svg
+                      className="h-4 w-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                      />
                     </svg>
                     Download Postman Collection
                   </a>
-                  
+
                   <button
                     onClick={() => {
                       const baseUrl = window.location.origin + '/api';
@@ -147,8 +166,18 @@ export default function ApiDocs() {
                     }}
                     className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
-                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <svg
+                      className="h-4 w-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
                     </svg>
                     Copy Base URL
                   </button>
@@ -170,7 +199,9 @@ export default function ApiDocs() {
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-gray-900 mb-2">🔄 Subscriptions</h3>
-                    <p className="text-sm text-gray-600">Subscription plans, renewals, management</p>
+                    <p className="text-sm text-gray-600">
+                      Subscription plans, renewals, management
+                    </p>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-gray-900 mb-2">🧾 Billing</h3>
@@ -182,7 +213,9 @@ export default function ApiDocs() {
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-gray-900 mb-2">🍳 Kitchen</h3>
-                    <p className="text-sm text-gray-600">Kitchen management, menu items, capacity</p>
+                    <p className="text-sm text-gray-600">
+                      Kitchen management, menu items, capacity
+                    </p>
                   </div>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-gray-900 mb-2">📊 Analytics</h3>

@@ -114,7 +114,7 @@ async function updateOrder(req, res, id) {
       };
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Check if order exists
       const existingOrder = await tx.order.findFirst({ where });
       if (!existingOrder) {
@@ -122,10 +122,10 @@ async function updateOrder(req, res, id) {
       }
 
       const updateData = {};
-      
+
       if (status !== undefined) {
         updateData.status = status;
-        
+
         // Auto-set timestamps based on status
         if (status === 'READY' && !preparedAt) {
           updateData.preparedAt = new Date();
@@ -134,12 +134,15 @@ async function updateOrder(req, res, id) {
           updateData.deliveredAt = new Date();
         }
       }
-      
+
       if (deliveryAddress !== undefined) updateData.deliveryAddress = deliveryAddress;
-      if (deliveryInstructions !== undefined) updateData.deliveryInstructions = deliveryInstructions;
+      if (deliveryInstructions !== undefined)
+        updateData.deliveryInstructions = deliveryInstructions;
       if (specialRequests !== undefined) updateData.specialRequests = specialRequests;
-      if (preparedAt !== undefined) updateData.preparedAt = preparedAt ? new Date(preparedAt) : null;
-      if (deliveredAt !== undefined) updateData.deliveredAt = deliveredAt ? new Date(deliveredAt) : null;
+      if (preparedAt !== undefined)
+        updateData.preparedAt = preparedAt ? new Date(preparedAt) : null;
+      if (deliveredAt !== undefined)
+        updateData.deliveredAt = deliveredAt ? new Date(deliveredAt) : null;
 
       const order = await tx.order.update({
         where: { id },
@@ -185,7 +188,11 @@ async function updateOrder(req, res, id) {
         }
 
         // Add loyalty points
-        await addLoyaltyPoints(tx, existingOrder.customerId, Math.floor(existingOrder.finalAmount / 100));
+        await addLoyaltyPoints(
+          tx,
+          existingOrder.customerId,
+          Math.floor(existingOrder.finalAmount / 100)
+        );
       }
 
       if (status === 'CANCELLED') {

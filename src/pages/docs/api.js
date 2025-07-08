@@ -12,21 +12,16 @@ export default function ApiDocs() {
       if (typeof window !== 'undefined') {
         // Import Swagger UI bundle
         const SwaggerUIBundle = (await import('swagger-ui-dist/swagger-ui-bundle.js')).default;
-        
+
         SwaggerUIBundle({
           url: '/api/docs',
           dom_id: '#swagger-ui',
           deepLinking: true,
-          presets: [
-            SwaggerUIBundle.presets.apis,
-            SwaggerUIBundle.presets.standalone
-          ],
-          plugins: [
-            SwaggerUIBundle.plugins.DownloadUrl
-          ],
-          layout: "StandaloneLayout",
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.presets.standalone],
+          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+          layout: 'StandaloneLayout',
           tryItOutEnabled: true,
-          requestInterceptor: (request) => {
+          requestInterceptor: request => {
             // Add auth token if available
             const token = localStorage.getItem('supabase.auth.token');
             if (token) {
@@ -52,16 +47,17 @@ export default function ApiDocs() {
             href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css"
           />
         </Head>
-        
+
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               OneFoodDialer API Documentation
             </h1>
             <p className="text-gray-600 mb-6">
-              Comprehensive REST API documentation for the OneFoodDialer subscription management system.
+              Comprehensive REST API documentation for the OneFoodDialer subscription management
+              system.
             </p>
-            
+
             {/* Quick Links */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -70,29 +66,24 @@ export default function ApiDocs() {
                   All endpoints require Bearer token authentication
                 </p>
               </div>
-              
+
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <h3 className="font-semibold text-green-900 mb-2">Base URL</h3>
                 <p className="text-sm text-green-700 font-mono">
-                  {process.env.NODE_ENV === 'production' 
-                    ? 'https://onefooddialer.vercel.app/api' 
-                    : 'http://localhost:3000/api'
-                  }
+                  {process.env.NODE_ENV === 'production'
+                    ? 'https://onefooddialer.vercel.app/api'
+                    : 'http://localhost:3000/api'}
                 </p>
               </div>
-              
+
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h3 className="font-semibold text-yellow-900 mb-2">Rate Limits</h3>
-                <p className="text-sm text-yellow-700">
-                  1000 requests per hour per API key
-                </p>
+                <p className="text-sm text-yellow-700">1000 requests per hour per API key</p>
               </div>
-              
+
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <h3 className="font-semibold text-purple-900 mb-2">Support</h3>
-                <p className="text-sm text-purple-700">
-                  support@onefooddialer.com
-                </p>
+                <p className="text-sm text-purple-700">support@onefooddialer.com</p>
               </div>
             </div>
 
@@ -105,7 +96,7 @@ export default function ApiDocs() {
               >
                 Download OpenAPI Spec
               </a>
-              
+
               <a
                 href="/docs/postman-collection.json"
                 download="onefooddialer-postman.json"
@@ -113,7 +104,7 @@ export default function ApiDocs() {
               >
                 Download Postman Collection
               </a>
-              
+
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.origin + '/api');

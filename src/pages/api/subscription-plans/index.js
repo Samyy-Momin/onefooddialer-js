@@ -24,7 +24,7 @@ async function getSubscriptionPlans(req, res) {
     const { businessId, type, isActive } = req.query;
 
     const where = {};
-    
+
     if (businessId) where.businessId = businessId;
     if (type) where.type = type;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -88,8 +88,8 @@ async function createSubscriptionPlan(req, res) {
 
     // Validate required fields
     if (!name || !type || !duration || !price || !businessId) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: name, type, duration, price, businessId' 
+      return res.status(400).json({
+        error: 'Missing required fields: name, type, duration, price, businessId',
       });
     }
 
@@ -119,13 +119,15 @@ async function createSubscriptionPlan(req, res) {
         maxOrders,
         features,
         businessId,
-        planItems: menuItems ? {
-          create: menuItems.map(item => ({
-            menuItemId: item.menuItemId,
-            quantity: item.quantity || 1,
-            isOptional: item.isOptional || false,
-          })),
-        } : undefined,
+        planItems: menuItems
+          ? {
+              create: menuItems.map(item => ({
+                menuItemId: item.menuItemId,
+                quantity: item.quantity || 1,
+                isOptional: item.isOptional || false,
+              })),
+            }
+          : undefined,
       },
       include: {
         business: true,

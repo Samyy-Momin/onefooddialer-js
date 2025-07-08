@@ -17,7 +17,7 @@ export default function CreateSubscription() {
     kitchenId: '',
     startDate: new Date().toISOString().split('T')[0],
     autoRenew: true,
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -29,17 +29,17 @@ export default function CreateSubscription() {
       const [customersRes, plansRes, kitchensRes] = await Promise.all([
         fetch('/api/customers', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+            Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
           },
         }),
         fetch('/api/subscription-plans', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+            Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
           },
         }),
         fetch('/api/kitchens', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+            Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
           },
         }),
       ]);
@@ -57,7 +57,7 @@ export default function CreateSubscription() {
         setPlans([
           { id: 'plan-1', name: 'Basic Plan', price: 299.99, type: 'MONTHLY', duration: 30 },
           { id: 'plan-2', name: 'Premium Plan', price: 499.99, type: 'MONTHLY', duration: 30 },
-          { id: 'plan-3', name: 'Enterprise Plan', price: 799.99, type: 'MONTHLY', duration: 30 }
+          { id: 'plan-3', name: 'Enterprise Plan', price: 799.99, type: 'MONTHLY', duration: 30 },
         ]);
       }
 
@@ -66,20 +66,18 @@ export default function CreateSubscription() {
         setKitchens(kitchensData.data || []);
       } else {
         // Create default kitchen if none exist
-        setKitchens([
-          { id: 'kitchen-1', name: 'Main Kitchen', address: { city: 'Mumbai' } }
-        ]);
+        setKitchens([{ id: 'kitchen-1', name: 'Main Kitchen', address: { city: 'Mumbai' } }]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -101,7 +99,7 @@ export default function CreateSubscription() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
@@ -116,7 +114,7 @@ export default function CreateSubscription() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+          Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
         },
         body: JSON.stringify(formData),
       });
@@ -129,7 +127,6 @@ export default function CreateSubscription() {
 
       // Success - redirect to subscriptions page
       router.push('/subscriptions?success=Subscription created successfully');
-
     } catch (error) {
       console.error('Error creating subscription:', error);
       setError(error.message || 'Failed to create subscription. Please try again.');
@@ -152,23 +149,34 @@ export default function CreateSubscription() {
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex">
-                <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5 text-red-400 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <p className="text-red-800">{error}</p>
               </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          >
             {/* Subscription Details */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Subscription Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Customer *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
                   <select
                     name="customerId"
                     value={formData.customerId}
@@ -179,7 +187,8 @@ export default function CreateSubscription() {
                     <option value="">Select a customer</option>
                     {customers.map(customer => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.user?.profile?.firstName} {customer.user?.profile?.lastName} ({customer.user?.email})
+                        {customer.user?.profile?.firstName} {customer.user?.profile?.lastName} (
+                        {customer.user?.email})
                       </option>
                     ))}
                   </select>
@@ -206,9 +215,7 @@ export default function CreateSubscription() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kitchen *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kitchen *</label>
                   <select
                     name="kitchenId"
                     value={formData.kitchenId}
@@ -249,9 +256,7 @@ export default function CreateSubscription() {
                       onChange={handleInputChange}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
-                      Auto-renew subscription
-                    </span>
+                    <span className="ml-2 text-sm text-gray-700">Auto-renew subscription</span>
                   </label>
                 </div>
 
@@ -311,9 +316,24 @@ export default function CreateSubscription() {
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
               >
                 {loading && (
-                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 )}
                 {loading ? 'Creating Subscription...' : 'Create Subscription'}

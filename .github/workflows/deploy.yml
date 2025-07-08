@@ -169,8 +169,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     outputs:
       production_url: ${{ steps.deploy.outputs.production_url }}
-    env:
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -225,9 +223,18 @@ jobs:
           curl -f ${{ steps.deploy.outputs.production_url }}/api/health || exit 1
           echo "✅ Health check passed"
 
+      - name: Check Sentry configuration
+        id: sentry-check
+        run: |
+          if [ -n "${{ secrets.SENTRY_AUTH_TOKEN }}" ]; then
+            echo "sentry_configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "sentry_configured=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Notify Sentry of deployment
         uses: getsentry/action-release@v1
-        if: ${{ success() && env.SENTRY_AUTH_TOKEN != '' }}
+        if: ${{ success() && steps.sentry-check.outputs.sentry_configured == 'true' }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

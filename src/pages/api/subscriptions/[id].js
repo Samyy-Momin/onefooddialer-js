@@ -113,14 +113,15 @@ async function updateSubscription(req, res, id) {
     }
 
     const updateData = {};
-    
+
     if (status !== undefined) updateData.status = status;
     if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null;
     if (autoRenew !== undefined) updateData.autoRenew = autoRenew;
     if (customizations !== undefined) updateData.customizations = customizations;
     if (deliveryAddress !== undefined) updateData.deliveryAddress = deliveryAddress;
     if (deliveryInstructions !== undefined) updateData.deliveryInstructions = deliveryInstructions;
-    if (pausedUntil !== undefined) updateData.pausedUntil = pausedUntil ? new Date(pausedUntil) : null;
+    if (pausedUntil !== undefined)
+      updateData.pausedUntil = pausedUntil ? new Date(pausedUntil) : null;
     if (kitchenId !== undefined) updateData.kitchenId = kitchenId;
 
     const subscription = await prisma.subscription.update({
@@ -184,9 +185,9 @@ async function deleteSubscription(req, res, id) {
       },
     });
 
-    return res.status(200).json({ 
+    return res.status(200).json({
       message: 'Subscription cancelled successfully',
-      subscription 
+      subscription,
     });
   } catch (error) {
     return handleApiError(error, res);

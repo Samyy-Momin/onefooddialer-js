@@ -1,7 +1,13 @@
 // OneFoodDialer - Orders Management API
 import { prisma } from '../../../lib/prisma';
 import { requireAuth } from '../../../lib/auth';
-import { handleApiError, getPaginationParams, createPaginationResponse, generateOrderNumber, calculateGST } from '../../../lib/utils';
+import {
+  handleApiError,
+  getPaginationParams,
+  createPaginationResponse,
+  generateOrderNumber,
+  calculateGST,
+} from '../../../lib/utils';
 
 async function handler(req, res) {
   const { method } = req;
@@ -24,7 +30,7 @@ async function getOrders(req, res) {
     const { status, kitchenId, customerId, type, date } = req.query;
 
     const where = {};
-    
+
     if (status) where.status = status;
     if (kitchenId) where.kitchenId = kitchenId;
     if (customerId) where.customerId = customerId;
@@ -116,12 +122,12 @@ async function createOrder(req, res) {
 
     // Validate required fields
     if (!customerId || !businessId || !scheduledFor || !orderItems?.length) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: customerId, businessId, scheduledFor, orderItems' 
+      return res.status(400).json({
+        error: 'Missing required fields: customerId, businessId, scheduledFor, orderItems',
       });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Verify customer
       const customer = await tx.customer.findFirst({
         where: {
@@ -249,7 +255,7 @@ async function createOrder(req, res) {
 // Helper function to create order invoice
 async function createOrderInvoice(tx, order, customer) {
   const { generateInvoiceNumber } = require('../../../lib/utils');
-  
+
   const invoiceNumber = generateInvoiceNumber();
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + 1); // Due tomorrow for one-time orders

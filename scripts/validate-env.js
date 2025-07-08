@@ -2,7 +2,7 @@
 
 /**
  * OneFoodDialer Environment Validation Script
- * 
+ *
  * This script validates that all required environment variables are properly configured
  * for both local development and GitHub Actions deployment.
  */
@@ -19,23 +19,19 @@ const colors = {
   blue: '\x1b[34m',
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
-  bold: '\x1b[1m'
+  bold: '\x1b[1m',
 };
 
 // Required environment variables for different contexts
 const requiredVars = {
-  local: [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    'DATABASE_URL'
-  ],
+  local: ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'DATABASE_URL'],
   github: [
     'VERCEL_TOKEN',
     'VERCEL_ORG_ID',
     'VERCEL_PROJECT_ID',
     'NEXT_PUBLIC_SUPABASE_URL',
     'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    'DATABASE_URL'
+    'DATABASE_URL',
   ],
   optional: [
     'SENTRY_AUTH_TOKEN',
@@ -52,8 +48,8 @@ const requiredVars = {
     'SMTP_USER',
     'SMTP_PASS',
     'PAYMENT_GATEWAY_KEY',
-    'SMS_API_KEY'
-  ]
+    'SMS_API_KEY',
+  ],
 };
 
 function log(message, color = 'reset') {
@@ -72,12 +68,12 @@ function validateUrl(url, name) {
 
 function validateSupabaseUrl(url) {
   if (!validateUrl(url, 'NEXT_PUBLIC_SUPABASE_URL')) return false;
-  
+
   if (!url.includes('.supabase.co')) {
     log('  ⚠️  URL should be a Supabase URL (*.supabase.co)', 'yellow');
     return false;
   }
-  
+
   return true;
 }
 
@@ -86,7 +82,7 @@ function validateSupabaseKey(key) {
     log('  ❌ Supabase key should start with "eyJ" (JWT format)', 'red');
     return false;
   }
-  
+
   return true;
 }
 
@@ -95,7 +91,7 @@ function validateDatabaseUrl(url) {
     log('  ❌ DATABASE_URL should start with "postgresql://"', 'red');
     return false;
   }
-  
+
   return true;
 }
 
@@ -108,19 +104,19 @@ function validateEnvironmentVariable(name, value) {
   switch (name) {
     case 'NEXT_PUBLIC_SUPABASE_URL':
       return validateSupabaseUrl(value);
-    
+
     case 'NEXT_PUBLIC_SUPABASE_ANON_KEY':
       return validateSupabaseKey(value);
-    
+
     case 'DATABASE_URL':
       return validateDatabaseUrl(value);
-    
+
     case 'NEXT_PUBLIC_SENTRY_DSN':
       return validateUrl(value, 'NEXT_PUBLIC_SENTRY_DSN');
-    
+
     case 'NEXTAUTH_URL':
       return validateUrl(value, 'NEXTAUTH_URL');
-    
+
     default:
       return true;
   }
@@ -128,9 +124,9 @@ function validateEnvironmentVariable(name, value) {
 
 function checkLocalEnvironment() {
   log('\n🔍 Checking Local Environment (.env.local)...', 'blue');
-  
+
   const envPath = path.join(process.cwd(), '.env.local');
-  
+
   if (!fs.existsSync(envPath)) {
     log('❌ .env.local file not found', 'red');
     log('💡 Create .env.local file and copy variables from .env.example', 'yellow');
@@ -140,7 +136,7 @@ function checkLocalEnvironment() {
   // Load .env.local
   const envContent = fs.readFileSync(envPath, 'utf8');
   const envVars = {};
-  
+
   envContent.split('\n').forEach(line => {
     const [key, ...valueParts] = line.split('=');
     if (key && valueParts.length > 0) {
@@ -153,7 +149,7 @@ function checkLocalEnvironment() {
   // Check required variables
   requiredVars.local.forEach(varName => {
     const value = envVars[varName];
-    
+
     if (!value) {
       log(`❌ ${varName} is missing`, 'red');
       allValid = false;
@@ -169,7 +165,7 @@ function checkLocalEnvironment() {
   log('\n📋 Optional Variables:', 'cyan');
   requiredVars.optional.forEach(varName => {
     const value = envVars[varName];
-    
+
     if (value) {
       if (validateEnvironmentVariable(varName, value)) {
         log(`✅ ${varName} (configured)`, 'green');
@@ -195,13 +191,16 @@ function checkGitHubSecrets() {
   });
 
   log('\n📋 Optional Monitoring Secrets:', 'magenta');
-  requiredVars.optional.filter(varName => 
-    varName.includes('SENTRY') || 
-    varName.includes('LOGROCKET') || 
-    varName.includes('GA_MEASUREMENT')
-  ).forEach(varName => {
-    log(`  ⚪ ${varName}`, 'reset');
-  });
+  requiredVars.optional
+    .filter(
+      varName =>
+        varName.includes('SENTRY') ||
+        varName.includes('LOGROCKET') ||
+        varName.includes('GA_MEASUREMENT')
+    )
+    .forEach(varName => {
+      log(`  ⚪ ${varName}`, 'reset');
+    });
 
   log('\n💡 To validate GitHub secrets, check your workflow runs:', 'yellow');
   log('   https://github.com/your-username/your-repo/actions', 'yellow');
@@ -236,14 +235,14 @@ function showSetupInstructions() {
 
 function main() {
   log('🍽️  OneFoodDialer Environment Validation', 'bold');
-  log('=' .repeat(50), 'cyan');
+  log('='.repeat(50), 'cyan');
 
   const localValid = checkLocalEnvironment();
   checkGitHubSecrets();
   showSetupInstructions();
 
-  log('\n' + '=' .repeat(50), 'cyan');
-  
+  log('\n' + '='.repeat(50), 'cyan');
+
   if (localValid) {
     log('✅ Local environment is properly configured!', 'green');
     log('🚀 You can now run: npm run dev', 'green');

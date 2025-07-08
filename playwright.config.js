@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [
     ['html'],
     ['json', { outputFile: 'test-results/results.json' }],
-    ['junit', { outputFile: 'test-results/results.xml' }]
+    ['junit', { outputFile: 'test-results/results.xml' }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -27,16 +27,16 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    
+
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Record video on failure */
     video: 'retain-on-failure',
-    
+
     /* Global timeout for each action */
     actionTimeout: 10000,
-    
+
     /* Global timeout for navigation */
     navigationTimeout: 30000,
   },
@@ -86,19 +86,19 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
-  
+
   /* Global setup and teardown */
   globalSetup: require.resolve('./e2e/global-setup.js'),
   globalTeardown: require.resolve('./e2e/global-teardown.js'),
-  
+
   /* Test timeout */
   timeout: 30000,
-  
+
   /* Expect timeout */
   expect: {
     timeout: 5000,
   },
-  
+
   /* Output directory */
   outputDir: 'test-results/',
 });

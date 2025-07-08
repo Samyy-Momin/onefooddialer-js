@@ -18,13 +18,9 @@ async function handler(req, res) {
 // Process invoice payment
 async function processPayment(req, res, invoiceId) {
   try {
-    const {
-      paymentMethod = 'WALLET',
-      paymentReference,
-      amount,
-    } = req.body;
+    const { paymentMethod = 'WALLET', paymentReference, amount } = req.body;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Get invoice with customer details
       const invoice = await tx.invoice.findUnique({
         where: { id: invoiceId },
@@ -164,7 +160,7 @@ async function processPayment(req, res, invoiceId) {
 // Helper function to calculate next billing date
 function calculateNextBillingDate(currentDate, planType) {
   const date = new Date(currentDate);
-  
+
   switch (planType) {
     case 'DAILY':
       date.setDate(date.getDate() + 1);
@@ -178,7 +174,7 @@ function calculateNextBillingDate(currentDate, planType) {
     default:
       date.setMonth(date.getMonth() + 1);
   }
-  
+
   return date;
 }
 

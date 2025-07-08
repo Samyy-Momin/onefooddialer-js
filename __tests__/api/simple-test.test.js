@@ -44,10 +44,10 @@ describe('Simple API Test', () => {
     // Test invoice calculation logic
     const items = [
       { quantity: 1, unitPrice: 299.99 },
-      { quantity: 2, unitPrice: 50.00 }
+      { quantity: 2, unitPrice: 50.0 },
     ];
-    
-    const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+
+    const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
     const taxRate = 0.18;
     const taxAmount = subtotal * taxRate;
     const total = subtotal + taxAmount;
@@ -89,11 +89,11 @@ describe('Simple API Test', () => {
   });
 
   it('should handle pagination parameters', () => {
-    const getPaginationParams = (query) => {
+    const getPaginationParams = query => {
       const page = parseInt(query.page) || 1;
       const limit = parseInt(query.limit) || 10;
       const skip = (page - 1) * limit;
-      
+
       return { page, limit, skip };
     };
 
@@ -105,7 +105,7 @@ describe('Simple API Test', () => {
   });
 
   it('should validate email format', () => {
-    const isValidEmail = (email) => {
+    const isValidEmail = email => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
     };
@@ -117,7 +117,7 @@ describe('Simple API Test', () => {
   });
 
   it('should validate phone number format', () => {
-    const isValidPhone = (phone) => {
+    const isValidPhone = phone => {
       const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
       return /^[\+]?[1-9][\d]{0,15}$/.test(cleanPhone);
     };
@@ -130,10 +130,10 @@ describe('Simple API Test', () => {
   });
 
   it('should handle business hours logic', () => {
-    const isBusinessHours = (date) => {
+    const isBusinessHours = date => {
       const hour = date.getHours();
       const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-      
+
       // Business hours: Monday-Saturday, 9 AM - 9 PM
       return day >= 1 && day <= 6 && hour >= 9 && hour <= 21;
     };

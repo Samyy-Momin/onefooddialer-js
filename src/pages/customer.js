@@ -1,16 +1,16 @@
 // OneFoodDialer - Enhanced Customer Dashboard with Authentication
-import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import { CustomerRoute } from "../components/ProtectedRoute";
-import { formatCurrency } from "../lib/utils";
+import React, { useState, useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import { CustomerRoute } from '../components/ProtectedRoute';
+import { formatCurrency } from '../lib/utils';
 
 export default function Customer() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [availablePlans, setAvailablePlans] = useState([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState("dashboard");
-  const [aiSuggestion, setAiSuggestion] = useState("");
+  const [selectedTab, setSelectedTab] = useState('dashboard');
+  const [aiSuggestion, setAiSuggestion] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [optimisticUpdates, setOptimisticUpdates] = useState(new Map());
 
@@ -23,11 +23,11 @@ export default function Customer() {
       setLoading(true);
 
       // Fetch customer subscriptions
-      const subscriptionsRes = await fetch("/api/subscriptions");
+      const subscriptionsRes = await fetch('/api/subscriptions');
       const subscriptionsData = await subscriptionsRes.json();
 
       // Fetch available plans
-      const plansRes = await fetch("/api/subscription-plans");
+      const plansRes = await fetch('/api/subscription-plans');
       const plansData = await plansRes.json();
 
       setSubscriptions(subscriptionsData.data || []);
@@ -36,7 +36,7 @@ export default function Customer() {
       // Mock wallet balance - in real app, fetch from API
       setWalletBalance(2500);
     } catch (error) {
-      console.error("Error fetching customer data:", error);
+      console.error('Error fetching customer data:', error);
     } finally {
       setLoading(false);
     }
@@ -44,65 +44,61 @@ export default function Customer() {
 
   const getSuggestion = async () => {
     try {
-      const res = await fetch("/api/gpt");
+      const res = await fetch('/api/gpt');
       const data = await res.json();
       setAiSuggestion(data.result);
     } catch (error) {
-      console.error("Error getting AI suggestion:", error);
+      console.error('Error getting AI suggestion:', error);
     }
   };
 
-  const pauseSubscription = async (subscriptionId) => {
+  const pauseSubscription = async subscriptionId => {
     try {
       const res = await fetch(`/api/subscriptions/${subscriptionId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: "PAUSED" }),
+        body: JSON.stringify({ status: 'PAUSED' }),
       });
 
       if (res.ok) {
         fetchCustomerData(); // Refresh data
       }
     } catch (error) {
-      console.error("Error pausing subscription:", error);
+      console.error('Error pausing subscription:', error);
     }
   };
 
-  const resumeSubscription = async (subscriptionId) => {
+  const resumeSubscription = async subscriptionId => {
     try {
       // Optimistic update
-      setSubscriptions((prev) =>
-        prev.map((sub) =>
-          sub.id === subscriptionId
-            ? { ...sub, status: "ACTIVE", isOptimistic: true }
-            : sub
+      setSubscriptions(prev =>
+        prev.map(sub =>
+          sub.id === subscriptionId ? { ...sub, status: 'ACTIVE', isOptimistic: true } : sub
         )
       );
 
       const res = await fetch(`/api/subscriptions/${subscriptionId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: "ACTIVE" }),
+        body: JSON.stringify({ status: 'ACTIVE' }),
       });
 
       if (res.ok) {
         const updatedSubscription = await res.json();
         // Replace optimistic update with real data
-        setSubscriptions((prev) =>
-          prev.map((sub) =>
-            sub.id === subscriptionId ? updatedSubscription : sub
-          )
+        setSubscriptions(prev =>
+          prev.map(sub => (sub.id === subscriptionId ? updatedSubscription : sub))
         );
       } else {
         // Revert optimistic update on error
         fetchCustomerData();
       }
     } catch (error) {
-      console.error("Error resuming subscription:", error);
+      console.error('Error resuming subscription:', error);
       fetchCustomerData(); // Revert on error
     }
   };
@@ -111,16 +107,14 @@ export default function Customer() {
   const handleOptimisticSubscription = (subscription, tempId = null) => {
     if (subscription === null && tempId) {
       // Remove optimistic update
-      setSubscriptions((prev) => prev.filter((sub) => sub.id !== tempId));
+      setSubscriptions(prev => prev.filter(sub => sub.id !== tempId));
     } else if (subscription) {
       if (subscription.isOptimistic) {
         // Add optimistic subscription
-        setSubscriptions((prev) => [subscription, ...prev]);
+        setSubscriptions(prev => [subscription, ...prev]);
       } else {
         // Replace optimistic with real data
-        setSubscriptions((prev) =>
-          prev.map((sub) => (sub.id === tempId ? subscription : sub))
-        );
+        setSubscriptions(prev => prev.map(sub => (sub.id === tempId ? subscription : sub)));
       }
     }
   };
@@ -134,8 +128,8 @@ export default function Customer() {
     }
   };
 
-  const handleSubscriptionError = (error) => {
-    console.error("Subscription error:", error);
+  const handleSubscriptionError = error => {
+    console.error('Subscription error:', error);
     // Show error message to user
     alert(error);
   };
@@ -162,14 +156,14 @@ export default function Customer() {
         {/* Tab Navigation */}
         <div className="mb-6">
           <nav className="flex space-x-8">
-            {["dashboard", "subscriptions", "plans", "wallet"].map((tab) => (
+            {['dashboard', 'subscriptions', 'plans', 'wallet'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   selectedTab === tab
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -179,35 +173,24 @@ export default function Customer() {
         </div>
 
         {/* Dashboard Tab */}
-        {selectedTab === "dashboard" && (
+        {selectedTab === 'dashboard' && (
           <>
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-xl shadow">
-                <h3 className="text-sm font-medium text-gray-500">
-                  Active Subscriptions
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500">Active Subscriptions</h3>
                 <p className="text-2xl font-bold text-blue-600">
-                  {subscriptions.filter((s) => s.status === "ACTIVE").length}
+                  {subscriptions.filter(s => s.status === 'ACTIVE').length}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-xl shadow">
-                <h3 className="text-sm font-medium text-gray-500">
-                  Wallet Balance
-                </h3>
-                <p className="text-2xl font-bold text-green-600">
-                  {formatCurrency(walletBalance)}
-                </p>
+                <h3 className="text-sm font-medium text-gray-500">Wallet Balance</h3>
+                <p className="text-2xl font-bold text-green-600">{formatCurrency(walletBalance)}</p>
               </div>
               <div className="bg-white p-6 rounded-xl shadow">
-                <h3 className="text-sm font-medium text-gray-500">
-                  Total Orders
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
                 <p className="text-2xl font-bold text-purple-600">
-                  {subscriptions.reduce(
-                    (acc, s) => acc + (s.orders?.length || 0),
-                    0
-                  )}
+                  {subscriptions.reduce((acc, s) => acc + (s.orders?.length || 0), 0)}
                 </p>
               </div>
             </div>
@@ -232,29 +215,24 @@ export default function Customer() {
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="text-lg font-bold mb-4">Recent Orders</h3>
               <div className="space-y-3">
-                {subscriptions.slice(0, 3).map((subscription) => (
-                  <div
-                    key={subscription.id}
-                    className="border-l-4 border-blue-500 pl-4"
-                  >
+                {subscriptions.slice(0, 3).map(subscription => (
+                  <div key={subscription.id} className="border-l-4 border-blue-500 pl-4">
                     <h4 className="font-semibold">{subscription.plan?.name}</h4>
                     <p className="text-sm text-gray-600">
-                      Next delivery:{" "}
+                      Next delivery:{' '}
                       {subscription.nextBillingDate
-                        ? new Date(
-                            subscription.nextBillingDate
-                          ).toLocaleDateString()
-                        : "Not scheduled"}
+                        ? new Date(subscription.nextBillingDate).toLocaleDateString()
+                        : 'Not scheduled'}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Status:{" "}
+                      Status:{' '}
                       <span
                         className={`font-semibold ${
-                          subscription.status === "ACTIVE"
-                            ? "text-green-600"
-                            : subscription.status === "PAUSED"
-                            ? "text-yellow-500"
-                            : "text-red-500"
+                          subscription.status === 'ACTIVE'
+                            ? 'text-green-600'
+                            : subscription.status === 'PAUSED'
+                              ? 'text-yellow-500'
+                              : 'text-red-500'
                         }`}
                       >
                         {subscription.status}
@@ -268,20 +246,16 @@ export default function Customer() {
         )}
 
         {/* Subscriptions Tab */}
-        {selectedTab === "subscriptions" && (
+        {selectedTab === 'subscriptions' && (
           <div className="bg-white p-6 rounded-xl shadow">
             <h3 className="text-lg font-bold mb-4">My Subscriptions</h3>
             <div className="space-y-4">
-              {subscriptions.map((subscription) => (
+              {subscriptions.map(subscription => (
                 <div key={subscription.id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-bold text-lg">
-                        {subscription.plan?.name}
-                      </h4>
-                      <p className="text-gray-600">
-                        {subscription.plan?.description}
-                      </p>
+                      <h4 className="font-bold text-lg">{subscription.plan?.name}</h4>
+                      <p className="text-gray-600">{subscription.plan?.description}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-green-600">
@@ -298,11 +272,11 @@ export default function Customer() {
                       <p className="text-gray-500">Status</p>
                       <p
                         className={`font-semibold ${
-                          subscription.status === "ACTIVE"
-                            ? "text-green-600"
-                            : subscription.status === "PAUSED"
-                            ? "text-yellow-500"
-                            : "text-red-500"
+                          subscription.status === 'ACTIVE'
+                            ? 'text-green-600'
+                            : subscription.status === 'PAUSED'
+                              ? 'text-yellow-500'
+                              : 'text-red-500'
                         }`}
                       >
                         {subscription.status}
@@ -310,35 +284,31 @@ export default function Customer() {
                     </div>
                     <div>
                       <p className="text-gray-500">Kitchen</p>
-                      <p>{subscription.kitchen?.name || "Not assigned"}</p>
+                      <p>{subscription.kitchen?.name || 'Not assigned'}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Start Date</p>
-                      <p>
-                        {new Date(subscription.startDate).toLocaleDateString()}
-                      </p>
+                      <p>{new Date(subscription.startDate).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Next Billing</p>
                       <p>
                         {subscription.nextBillingDate
-                          ? new Date(
-                              subscription.nextBillingDate
-                            ).toLocaleDateString()
-                          : "N/A"}
+                          ? new Date(subscription.nextBillingDate).toLocaleDateString()
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    {subscription.status === "ACTIVE" ? (
+                    {subscription.status === 'ACTIVE' ? (
                       <button
                         onClick={() => pauseSubscription(subscription.id)}
                         className="bg-yellow-100 text-yellow-600 px-3 py-1 rounded text-sm hover:bg-yellow-200"
                       >
                         Pause
                       </button>
-                    ) : subscription.status === "PAUSED" ? (
+                    ) : subscription.status === 'PAUSED' ? (
                       <button
                         onClick={() => resumeSubscription(subscription.id)}
                         className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm hover:bg-green-200"
@@ -360,28 +330,22 @@ export default function Customer() {
         )}
 
         {/* Available Plans Tab */}
-        {selectedTab === "plans" && (
+        {selectedTab === 'plans' && (
           <div className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-lg font-bold mb-4">
-              Available Subscription Plans
-            </h3>
+            <h3 className="text-lg font-bold mb-4">Available Subscription Plans</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availablePlans.map((plan) => (
+              {availablePlans.map(plan => (
                 <div
                   key={plan.id}
                   className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
                 >
                   <h4 className="font-bold text-lg mb-2">{plan.name}</h4>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {plan.description}
-                  </p>
+                  <p className="text-gray-600 text-sm mb-3">{plan.description}</p>
                   <div className="mb-4">
                     <span className="text-3xl font-bold text-green-600">
                       {formatCurrency(plan.price)}
                     </span>
-                    <span className="text-gray-500 text-sm">
-                      /{plan.type.toLowerCase()}
-                    </span>
+                    <span className="text-gray-500 text-sm">/{plan.type.toLowerCase()}</span>
                   </div>
 
                   <div className="text-sm text-gray-600 mb-4">
@@ -393,20 +357,16 @@ export default function Customer() {
                   {/* Plan Items */}
                   {plan.planItems && plan.planItems.length > 0 && (
                     <div className="mb-4">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
-                        Includes:
-                      </p>
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Includes:</p>
                       <ul className="text-sm text-gray-600 space-y-1">
-                        {plan.planItems.slice(0, 3).map((item) => (
+                        {plan.planItems.slice(0, 3).map(item => (
                           <li key={item.id} className="flex justify-between">
                             <span>{item.menuItem.name}</span>
                             <span>x{item.quantity}</span>
                           </li>
                         ))}
                         {plan.planItems.length > 3 && (
-                          <li className="text-gray-500">
-                            +{plan.planItems.length - 3} more items
-                          </li>
+                          <li className="text-gray-500">+{plan.planItems.length - 3} more items</li>
                         )}
                       </ul>
                     </div>
@@ -422,7 +382,7 @@ export default function Customer() {
         )}
 
         {/* Wallet Tab */}
-        {selectedTab === "wallet" && (
+        {selectedTab === 'wallet' && (
           <div className="space-y-6">
             {/* Wallet Balance */}
             <div className="bg-white p-6 rounded-xl shadow">
@@ -448,26 +408,26 @@ export default function Customer() {
                 {[
                   {
                     id: 1,
-                    type: "DEBIT",
+                    type: 'DEBIT',
                     amount: 150,
-                    description: "Daily Tiffin Order",
-                    date: "2025-07-08",
+                    description: 'Daily Tiffin Order',
+                    date: '2025-07-08',
                   },
                   {
                     id: 2,
-                    type: "CREDIT",
+                    type: 'CREDIT',
                     amount: 500,
-                    description: "Wallet Recharge",
-                    date: "2025-07-07",
+                    description: 'Wallet Recharge',
+                    date: '2025-07-07',
                   },
                   {
                     id: 3,
-                    type: "DEBIT",
+                    type: 'DEBIT',
                     amount: 300,
-                    description: "Weekly Plan Payment",
-                    date: "2025-07-06",
+                    description: 'Weekly Plan Payment',
+                    date: '2025-07-06',
                   },
-                ].map((transaction) => (
+                ].map(transaction => (
                   <div
                     key={transaction.id}
                     className="flex justify-between items-center py-3 border-b"
@@ -480,12 +440,10 @@ export default function Customer() {
                     </div>
                     <div
                       className={`font-bold ${
-                        transaction.type === "CREDIT"
-                          ? "text-green-600"
-                          : "text-red-600"
+                        transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
                       }`}
                     >
-                      {transaction.type === "CREDIT" ? "+" : "-"}
+                      {transaction.type === 'CREDIT' ? '+' : '-'}
                       {formatCurrency(transaction.amount)}
                     </div>
                   </div>

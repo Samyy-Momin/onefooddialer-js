@@ -1,10 +1,12 @@
 # GitHub Actions Setup Guide for OneFoodDialer
 
-This guide provides detailed instructions for setting up GitHub Actions CI/CD pipeline for OneFoodDialer deployment.
+This guide provides detailed instructions for setting up GitHub Actions CI/CD
+pipeline for OneFoodDialer deployment.
 
 ## 🚀 Overview
 
 The GitHub Actions workflow provides:
+
 - ✅ Automated testing (linting, formatting, unit tests)
 - ✅ Build validation
 - ✅ Preview deployments for pull requests
@@ -28,29 +30,33 @@ The GitHub Actions workflow provides:
    - Sign up with your GitHub account
 
 2. **Install Vercel CLI**
+
    ```bash
    npm install -g vercel
    ```
 
 3. **Login and Link Project**
+
    ```bash
    # Login to Vercel
    vercel login
-   
+
    # Navigate to your project directory
    cd your-onefooddialer-project
-   
+
    # Link the project
    vercel link
    ```
 
 4. **Get Organization and Project IDs**
+
    ```bash
    # This creates .vercel/project.json with your IDs
    cat .vercel/project.json
    ```
-   
+
    Example output:
+
    ```json
    {
      "orgId": "team_xxxxxxxxxxxxxxxxxx",
@@ -86,10 +92,11 @@ The GitHub Actions workflow provides:
    - Click `Settings` → `Secrets and variables` → `Actions`
 
 2. **Add Required Secrets**
-   
+
    Click "New repository secret" for each:
 
    **Deployment Secrets (Required):**
+
    ```
    VERCEL_TOKEN=your_vercel_token_here
    VERCEL_ORG_ID=team_xxxxxxxxxxxxxxxxxx
@@ -102,6 +109,7 @@ The GitHub Actions workflow provides:
 ### Step 4: Optional Monitoring Setup
 
 #### Sentry (Error Monitoring)
+
 1. Create account at [sentry.io](https://sentry.io)
 2. Create new Next.js project
 3. Get DSN from Project Settings → Client Keys
@@ -115,6 +123,7 @@ The GitHub Actions workflow provides:
    ```
 
 #### LogRocket (Session Replay)
+
 1. Create account at [logrocket.com](https://logrocket.com)
 2. Create new application
 3. Get App ID from dashboard
@@ -124,6 +133,7 @@ The GitHub Actions workflow provides:
    ```
 
 #### Google Analytics
+
 1. Create GA4 property at [analytics.google.com](https://analytics.google.com)
 2. Get Measurement ID
 3. Add secret:
@@ -134,6 +144,7 @@ The GitHub Actions workflow provides:
 ### Step 5: Test the Workflow
 
 1. **Push to Main Branch**
+
    ```bash
    git add .
    git commit -m "feat: setup GitHub Actions deployment"
@@ -141,6 +152,7 @@ The GitHub Actions workflow provides:
    ```
 
 2. **Create Pull Request**
+
    ```bash
    git checkout -b feature/test-deployment
    git push origin feature/test-deployment
@@ -182,10 +194,11 @@ The GitHub Actions workflow provides:
    - Expand failed steps to see detailed logs
 
 2. **Test Locally**
+
    ```bash
    # Test build locally
    npm run build
-   
+
    # Test health endpoint
    npm run dev
    curl http://localhost:3000/api/health
@@ -200,23 +213,27 @@ The GitHub Actions workflow provides:
 ## 📊 Workflow Features
 
 ### Automated Testing
+
 - ESLint code quality checks
 - Prettier formatting validation
 - Jest unit tests with coverage
 - Build validation
 
 ### Deployment
+
 - Preview deployments for pull requests
 - Production deployment on main branch
 - Automatic health checks
 - Rollback capabilities
 
 ### Monitoring
+
 - Sentry error tracking and release monitoring
 - Performance monitoring
 - Real-time alerts
 
 ### Security
+
 - Secret validation before deployment
 - Environment isolation
 - Secure token handling
@@ -246,6 +263,7 @@ The GitHub Actions workflow provides:
 ## 📞 Support
 
 If you encounter issues:
+
 1. Check the troubleshooting section above
 2. Review GitHub Actions logs
 3. Verify all secrets are correctly configured
@@ -253,4 +271,5 @@ If you encounter issues:
 
 ---
 
-**Next Steps**: After setup is complete, refer to [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment guidelines.
+**Next Steps**: After setup is complete, refer to
+[DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment guidelines.

@@ -15,17 +15,12 @@ async function handler(req, res) {
 // Transfer money between wallets
 async function transferMoney(req, res) {
   try {
-    const {
-      fromCustomerId,
-      toCustomerId,
-      amount,
-      description = 'Wallet transfer',
-    } = req.body;
+    const { fromCustomerId, toCustomerId, amount, description = 'Wallet transfer' } = req.body;
 
     // Validate required fields
     if (!toCustomerId || !amount || amount <= 0) {
-      return res.status(400).json({ 
-        error: 'Valid recipient and amount are required' 
+      return res.status(400).json({
+        error: 'Valid recipient and amount are required',
       });
     }
 
@@ -43,7 +38,7 @@ async function transferMoney(req, res) {
       return res.status(400).json({ error: 'Cannot transfer to same wallet' });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Get sender customer
       const sender = await tx.customer.findUnique({
         where: { id: senderCustomerId },

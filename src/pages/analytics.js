@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -12,18 +12,18 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
-import Navbar from "../components/Navbar";
+} from 'recharts';
+import Navbar from '../components/Navbar';
 
-const COLORS = ["#4ade80", "#60a5fa", "#facc15"];
+const COLORS = ['#4ade80', '#60a5fa', '#facc15'];
 
 export default function Analytics() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch("/data/analytics.json")
-      .then((res) => res.json())
-      .then((json) => setData(json));
+    fetch('/data/analytics.json')
+      .then(res => res.json())
+      .then(json => setData(json));
   }, []);
 
   if (!data) return <p className="p-8">Loading analytics...</p>;
@@ -43,12 +43,7 @@ export default function Analytics() {
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#4ade80"
-                  strokeWidth={2}
-                />
+                <Line type="monotone" dataKey="count" stroke="#4ade80" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -68,9 +63,7 @@ export default function Analytics() {
 
           {/* Customers by Plan Pie Chart */}
           <div className="bg-white p-4 rounded-xl shadow col-span-1 lg:col-span-2">
-            <h2 className="text-lg font-semibold mb-2">
-              Customer Distribution
-            </h2>
+            <h2 className="text-lg font-semibold mb-2">Customer Distribution</h2>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie

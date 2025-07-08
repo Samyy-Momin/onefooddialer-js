@@ -83,9 +83,9 @@ async function getWalletInfo(req, res) {
     });
 
     const creditSum = await prisma.walletTransaction.aggregate({
-      where: { 
+      where: {
         customerId,
-        type: { in: ['CREDIT', 'REFUND', 'CASHBACK', 'BONUS'] }
+        type: { in: ['CREDIT', 'REFUND', 'CASHBACK', 'BONUS'] },
       },
       _sum: {
         amount: true,
@@ -93,9 +93,9 @@ async function getWalletInfo(req, res) {
     });
 
     const debitSum = await prisma.walletTransaction.aggregate({
-      where: { 
+      where: {
         customerId,
-        type: 'DEBIT'
+        type: 'DEBIT',
       },
       _sum: {
         amount: true,
@@ -151,7 +151,7 @@ async function addMoney(req, res) {
       return res.status(400).json({ error: 'Customer ID required' });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Get current customer data
       const customer = await tx.customer.findUnique({
         where: { id: targetCustomerId },

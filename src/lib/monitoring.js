@@ -45,7 +45,7 @@ export const initializeLogRocket = () => {
 };
 
 // Identify user for LogRocket
-export const identifyUser = (user) => {
+export const identifyUser = user => {
   if (typeof window !== 'undefined' && LogRocket) {
     LogRocket.identify(user.id, {
       name: `${user.profile?.firstName} ${user.profile?.lastName}`,
@@ -87,7 +87,7 @@ export const initializeGA = () => {
 };
 
 // Track page views
-export const trackPageView = (url) => {
+export const trackPageView = url => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, {
       page_path: url,
@@ -109,7 +109,7 @@ export const trackGAEvent = (action, category, label, value) => {
 // Error tracking utility
 export const trackError = (error, context = {}) => {
   console.error('Application Error:', error, context);
-  
+
   // Track in LogRocket
   if (typeof window !== 'undefined' && LogRocket) {
     LogRocket.captureException(error, {
@@ -120,7 +120,7 @@ export const trackError = (error, context = {}) => {
       extra: context,
     });
   }
-  
+
   // Track in GA
   trackGAEvent('exception', 'error', error.message, 0);
 };
@@ -132,7 +132,7 @@ export const trackPerformance = (metricName, value, context = {}) => {
     value,
     ...context,
   });
-  
+
   // Track in GA
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'timing_complete', {
@@ -150,7 +150,7 @@ export const trackBusinessMetric = (metric, value, properties = {}) => {
     timestamp: new Date().toISOString(),
     ...properties,
   });
-  
+
   trackGAEvent('business_metric', metric, JSON.stringify(properties), value);
 };
 

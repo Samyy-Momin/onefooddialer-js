@@ -2,16 +2,19 @@
 
 ## Overview
 
-OneFoodDialer includes comprehensive testing setup with both unit tests (Jest) and end-to-end tests (Playwright) to ensure production-ready quality.
+OneFoodDialer includes comprehensive testing setup with both unit tests (Jest)
+and end-to-end tests (Playwright) to ensure production-ready quality.
 
 ## 🧪 Testing Stack
 
 ### Unit Testing
+
 - **Jest** - JavaScript testing framework
 - **@testing-library/react** - React component testing utilities
 - **@testing-library/jest-dom** - Custom Jest matchers
 
 ### E2E Testing
+
 - **Playwright** - Cross-browser end-to-end testing
 - **Multi-browser support** - Chrome, Firefox, Safari, Mobile
 
@@ -76,17 +79,20 @@ npm run test:all
 ## 📊 Test Coverage
 
 ### Unit Test Coverage Goals
+
 - **Branches**: 70%
 - **Functions**: 70%
 - **Lines**: 70%
 - **Statements**: 70%
 
 ### API Routes Covered
+
 - ✅ `/api/subscriptions` - POST validation and creation
 - ✅ `/api/invoices` - POST validation and tax calculations
 - ✅ `/api/dashboard/stats` - GET real-time statistics
 
 ### Components Covered
+
 - ✅ ListPage component
 - ✅ Card components
 - ✅ FilterBar component
@@ -95,6 +101,7 @@ npm run test:all
 ## 🎯 E2E Test Scenarios
 
 ### Smoke Test Coverage
+
 1. **Authentication Flow**
    - Login with valid credentials
    - Invalid login error handling
@@ -135,6 +142,7 @@ npm run test:all
 ## 🔧 Test Configuration
 
 ### Jest Configuration (`jest.config.js`)
+
 ```javascript
 {
   testEnvironment: 'jest-environment-jsdom',
@@ -151,6 +159,7 @@ npm run test:all
 ```
 
 ### Playwright Configuration (`playwright.config.js`)
+
 ```javascript
 {
   testDir: './e2e',
@@ -172,77 +181,82 @@ npm run test:all
 ## 📝 Writing Tests
 
 ### Unit Test Example
+
 ```javascript
 // __tests__/api/subscriptions.test.js
-import { createMocks } from 'node-mocks-http'
-import handler from '../../src/pages/api/subscriptions'
+import { createMocks } from 'node-mocks-http';
+import handler from '../../src/pages/api/subscriptions';
 
 describe('/api/subscriptions', () => {
   it('should create subscription with valid data', async () => {
     const { req, res } = createMocks({
       method: 'POST',
-      body: validSubscriptionData
-    })
+      body: validSubscriptionData,
+    });
 
-    await handler(req, res)
+    await handler(req, res);
 
-    expect(res._getStatusCode()).toBe(201)
-    const data = JSON.parse(res._getData())
-    expect(data.success).toBe(true)
-  })
-})
+    expect(res._getStatusCode()).toBe(201);
+    const data = JSON.parse(res._getData());
+    expect(data.success).toBe(true);
+  });
+});
 ```
 
 ### E2E Test Example
+
 ```javascript
 // e2e/smoke-test.spec.js
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test('User can login and access dashboard', async ({ page }) => {
-  await page.goto('/')
-  await page.click('text=Login')
-  await page.fill('input[type="email"]', 'admin@example.com')
-  await page.fill('input[type="password"]', 'password')
-  await page.click('button[type="submit"]')
-  
-  await expect(page).toHaveURL('**/dashboard/admin')
-  await expect(page.locator('h1')).toContainText('Dashboard')
-})
+  await page.goto('/');
+  await page.click('text=Login');
+  await page.fill('input[type="email"]', 'admin@example.com');
+  await page.fill('input[type="password"]', 'password');
+  await page.click('button[type="submit"]');
+
+  await expect(page).toHaveURL('**/dashboard/admin');
+  await expect(page.locator('h1')).toContainText('Dashboard');
+});
 ```
 
 ## 🎯 Test Data Management
 
 ### Mock Data
+
 ```javascript
 // jest.setup.js
 global.testUtils = {
   mockUser: {
     id: 'test-user-id',
     email: 'test@example.com',
-    role: 'BUSINESS_OWNER'
+    role: 'BUSINESS_OWNER',
   },
   mockCustomer: {
     id: 'test-customer-id',
     customerCode: 'CUST001234',
-    walletBalance: 100.50
-  }
-}
+    walletBalance: 100.5,
+  },
+};
 ```
 
 ### API Mocking
+
 ```javascript
 // Mock fetch for API calls
 global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
-    json: () => Promise.resolve({ success: true, data: {} })
+    json: () => Promise.resolve({ success: true, data: {} }),
   })
-)
+);
 ```
 
 ## 🚨 Test Best Practices
 
 ### Unit Tests
+
 1. **Test behavior, not implementation**
 2. **Use descriptive test names**
 3. **Mock external dependencies**
@@ -250,6 +264,7 @@ global.fetch = jest.fn(() =>
 5. **Keep tests isolated and independent**
 
 ### E2E Tests
+
 1. **Test critical user journeys**
 2. **Use data-testid attributes for reliable selectors**
 3. **Wait for elements properly**
@@ -259,6 +274,7 @@ global.fetch = jest.fn(() =>
 ## 🔍 Debugging Tests
 
 ### Unit Test Debugging
+
 ```bash
 # Run specific test file
 npm test -- subscriptions.test.js
@@ -271,6 +287,7 @@ npm run test:watch -- --coverage
 ```
 
 ### E2E Test Debugging
+
 ```bash
 # Run specific test file
 npx playwright test smoke-test.spec.js
@@ -288,6 +305,7 @@ npx playwright show-report
 ## 📈 Continuous Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Tests
 on: [push, pull_request]
@@ -308,11 +326,13 @@ jobs:
 ## 🎯 Test Metrics
 
 ### Current Coverage
+
 - **API Routes**: 90%+ coverage
 - **Core Components**: 85%+ coverage
 - **Critical User Flows**: 100% E2E coverage
 
 ### Performance Benchmarks
+
 - **Page Load Time**: < 3 seconds
 - **API Response Time**: < 500ms
 - **Test Execution Time**: < 5 minutes
@@ -337,6 +357,7 @@ jobs:
    - Check mock data consistency
 
 ### Getting Help
+
 - Check test logs and error messages
 - Review test documentation
 - Run tests in debug mode
@@ -344,4 +365,5 @@ jobs:
 
 ---
 
-**OneFoodDialer testing ensures production-ready quality with comprehensive coverage!** 🚀
+**OneFoodDialer testing ensures production-ready quality with comprehensive
+coverage!** 🚀

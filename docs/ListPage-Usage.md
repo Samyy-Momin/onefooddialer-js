@@ -1,7 +1,10 @@
 # ListPage Component Usage Guide
 
 ## Overview
-The `ListPage` component is a reusable, feature-rich table component that provides:
+
+The `ListPage` component is a reusable, feature-rich table component that
+provides:
+
 - Data fetching from API endpoints
 - Filtering and search functionality
 - Pagination
@@ -33,11 +36,13 @@ export default function MyPage() {
 ## Props
 
 ### Required Props
+
 - `title` (string): Page title displayed at the top
 - `dataUrl` (string): API endpoint to fetch data from
 - `columns` (array): Column definitions with `label` and `key`
 
 ### Optional Props
+
 - `filters` (array): Filter definitions for search/filter bar
 - `renderActions` (React element): Custom action buttons
 - `onRowClick` (function): Handler for row clicks
@@ -60,26 +65,27 @@ columns={[
 
 ```jsx
 filters={[
-  { 
-    label: 'Search', 
-    key: 'search', 
-    type: 'text' 
+  {
+    label: 'Search',
+    key: 'search',
+    type: 'text'
   },
-  { 
-    label: 'Status', 
-    key: 'status', 
-    type: 'select', 
-    options: ['ACTIVE', 'INACTIVE', 'PENDING'] 
+  {
+    label: 'Status',
+    key: 'status',
+    type: 'select',
+    options: ['ACTIVE', 'INACTIVE', 'PENDING']
   },
-  { 
-    label: 'Date', 
-    key: 'date', 
-    type: 'date' 
+  {
+    label: 'Date',
+    key: 'date',
+    type: 'date'
   },
 ]}
 ```
 
 ### Filter Types
+
 - `text`: Text input for search
 - `select`: Dropdown with predefined options
 - `date`: Date picker input
@@ -92,8 +98,8 @@ renderActions={
     <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
       Export
     </button>
-    <a 
-      href="/create" 
+    <a
+      href="/create"
       className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
     >
       + Add New
@@ -105,10 +111,10 @@ renderActions={
 ## Row Click Handling
 
 ```jsx
-const handleRowClick = (item) => {
+const handleRowClick = item => {
   // Navigate to detail page
   window.location.href = `/details/${item.id}`;
-  
+
   // Or use Next.js router
   // router.push(`/details/${item.id}`);
 };
@@ -116,7 +122,7 @@ const handleRowClick = (item) => {
 <ListPage
   onRowClick={handleRowClick}
   // ... other props
-/>
+/>;
 ```
 
 ## API Response Format
@@ -124,6 +130,7 @@ const handleRowClick = (item) => {
 The component expects API responses in one of these formats:
 
 ### Paginated Response
+
 ```json
 {
   "data": [...],
@@ -137,6 +144,7 @@ The component expects API responses in one of these formats:
 ```
 
 ### Simple Array Response
+
 ```json
 {
   "data": [...]
@@ -144,6 +152,7 @@ The component expects API responses in one of these formats:
 ```
 
 ### Direct Array Response
+
 ```json
 [...]
 ```
@@ -153,15 +162,19 @@ The component expects API responses in one of these formats:
 The component automatically formats certain data types:
 
 ### Currency Fields
+
 Any field containing "amount", "price", or "balance" is formatted as currency.
 
 ### Date Fields
+
 Any field containing "date" or "At" is formatted as a localized date.
 
 ### Status Fields
+
 Fields named "status" are displayed as colored badges.
 
 ### Boolean Fields
+
 Boolean values are displayed as "Yes/No" badges.
 
 ## Complete Example
@@ -173,7 +186,7 @@ import ListPage from '../components/ListPage';
 import { AdminRoute } from '../components/ProtectedRoute';
 
 export default function CustomersPage() {
-  const handleRowClick = (customer) => {
+  const handleRowClick = customer => {
     window.location.href = `/customers/${customer.id}`;
   };
 
@@ -193,16 +206,16 @@ export default function CustomersPage() {
           { label: 'Joined Date', key: 'createdAt' },
         ]}
         filters={[
-          { 
-            label: 'Search', 
-            key: 'search', 
-            type: 'text' 
+          {
+            label: 'Search',
+            key: 'search',
+            type: 'text',
           },
-          { 
-            label: 'Status', 
-            key: 'status', 
-            type: 'select', 
-            options: ['active', 'inactive'] 
+          {
+            label: 'Status',
+            key: 'status',
+            type: 'select',
+            options: ['active', 'inactive'],
           },
         ]}
         renderActions={
@@ -210,8 +223,8 @@ export default function CustomersPage() {
             <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
               Export CSV
             </button>
-            <a 
-              href="/customers/create" 
+            <a
+              href="/customers/create"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
             >
               + Add Customer
@@ -229,7 +242,9 @@ export default function CustomersPage() {
 
 ## Styling
 
-The component uses Tailwind CSS classes and follows the OneFoodDialer design system:
+The component uses Tailwind CSS classes and follows the OneFoodDialer design
+system:
+
 - White background with shadow for main container
 - Gray background for the page
 - Blue color scheme for interactive elements
@@ -239,6 +254,7 @@ The component uses Tailwind CSS classes and follows the OneFoodDialer design sys
 ## Error Handling
 
 The component includes built-in error handling:
+
 - Loading states with spinner
 - Error messages with retry functionality
 - Empty state messages

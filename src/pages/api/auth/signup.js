@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Create user with Supabase
       const userData = {
         firstName,
