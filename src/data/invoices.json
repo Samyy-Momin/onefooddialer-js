@@ -1,0 +1,29 @@
+[
+  {
+    "id": "INV-1001",
+    "customer": "Sabih Momin",
+    "plan": "Monthly",
+    "subtotal": 2000,
+    "cgst": 5,
+    "sgst": 5,
+    "status": "Paid"
+  },
+  {
+    "id": "INV-1002",
+    "customer": "Irfan Khan",
+    "plan": "Weekly",
+    "subtotal": 700,
+    "cgst": 5,
+    "sgst": 5,
+    "status": "Unpaid"
+  },
+  {
+    "id": "INV-1003",
+    "customer": "Nikita Sharma",
+    "plan": "Daily",
+    "subtotal": 300,
+    "cgst": 2.5,
+    "sgst": 2.5,
+    "status": "Paid"
+  }
+]

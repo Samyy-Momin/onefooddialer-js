@@ -1,0 +1,18 @@
+{
+  "orders": [
+    { "date": "2025-07-01", "count": 22 },
+    { "date": "2025-07-02", "count": 30 },
+    { "date": "2025-07-03", "count": 27 },
+    { "date": "2025-07-04", "count": 33 }
+  ],
+  "revenueByPlan": [
+    { "plan": "Daily", "revenue": 900 },
+    { "plan": "Weekly", "revenue": 2500 },
+    { "plan": "Monthly", "revenue": 7200 }
+  ],
+  "customersByPlan": [
+    { "plan": "Daily", "customers": 12 },
+    { "plan": "Weekly", "customers": 8 },
+    { "plan": "Monthly", "customers": 20 }
+  ]
+}
