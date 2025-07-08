@@ -2,11 +2,16 @@
 
 **Professional-Grade Subscription-Based Business Management System**
 
-OneFoodDialer is a production-ready SaaS platform designed for food delivery and subscription businesses. Built with modern technologies and enterprise-grade features, it provides complete business management capabilities including customer relationship management, order processing, subscription handling, billing, wallet management, and real-time analytics.
+OneFoodDialer is a production-ready SaaS platform designed for food delivery and
+subscription businesses. Built with modern technologies and enterprise-grade
+features, it provides complete business management capabilities including
+customer relationship management, order processing, subscription handling,
+billing, wallet management, and real-time analytics.
 
 ## 🌟 Key Highlights
 
-- **🏢 Multi-Tenant Architecture** - Complete business isolation and data security
+- **🏢 Multi-Tenant Architecture** - Complete business isolation and data
+  security
 - **⚡ Real-Time Dashboard** - Live analytics with auto-refresh every 60 seconds
 - **📊 Interactive API Docs** - Complete Swagger UI with testing capabilities
 - **✏️ Inline Editing** - Edit data directly in tables with optimistic updates
@@ -32,7 +37,8 @@ OneFoodDialer is a production-ready SaaS platform designed for food delivery and
 ### 🎯 Core Business Features
 
 - **Multi-Tenant Architecture** - Complete business isolation and data security
-- **Role-Based Access Control** - 5 distinct user roles with granular permissions
+- **Role-Based Access Control** - 5 distinct user roles with granular
+  permissions
 - **Subscription Management** - Flexible subscription plans with auto-renewal
 - **Order Processing** - Complete order lifecycle from creation to delivery
 - **Billing & Invoicing** - Automated invoice generation with tax calculations
@@ -49,7 +55,8 @@ OneFoodDialer is a production-ready SaaS platform designed for food delivery and
 
 ### 💼 Business Management
 
-- **Customer Relationship Management (CRM)** - Complete customer lifecycle management
+- **Customer Relationship Management (CRM)** - Complete customer lifecycle
+  management
 - **Kitchen Management** - Multi-kitchen support with capacity tracking
 - **Inventory Tracking** - Real-time inventory management
 - **Staff Management** - Role-based staff access and permissions
@@ -248,7 +255,8 @@ yarn install
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your configuration (see [Environment Variables](#environment-variables)).
+Edit `.env.local` with your configuration (see
+[Environment Variables](#environment-variables)).
 
 ### 4. Database Setup
 
@@ -277,9 +285,12 @@ yarn dev
 ### 6. Access the Application
 
 1. **Main Application**: [http://localhost:3000](http://localhost:3000)
-2. **Admin Dashboard**: [http://localhost:3000/dashboard/admin](http://localhost:3000/dashboard/admin)
-3. **API Documentation**: [http://localhost:3000/docs](http://localhost:3000/docs)
-4. **Customer Portal**: [http://localhost:3000/customer/dashboard](http://localhost:3000/customer/dashboard)
+2. **Admin Dashboard**:
+   [http://localhost:3000/dashboard/admin](http://localhost:3000/dashboard/admin)
+3. **API Documentation**:
+   [http://localhost:3000/docs](http://localhost:3000/docs)
+4. **Customer Portal**:
+   [http://localhost:3000/customer/dashboard](http://localhost:3000/customer/dashboard)
 
 ### 7. Default Login Credentials
 
@@ -332,11 +343,74 @@ Create a `.env.local` file in the root directory:
 | `PAYMENT_GATEWAY_KEY`           | Payment gateway API key      | ❌       | `pk_test_xxx`                             |
 | `SMS_API_KEY`                   | SMS service API key          | ❌       | `your-sms-api-key`                        |
 
+### 📦 GitHub Actions Secrets
+
+For automated deployment via GitHub Actions, configure these secrets in your
+repository settings (`Settings → Secrets and variables → Actions`):
+
+#### Required Deployment Secrets
+
+| Secret Name                     | Description                  | Required | Where to Get                                                         |
+| ------------------------------- | ---------------------------- | -------- | -------------------------------------------------------------------- |
+| `VERCEL_TOKEN`                  | Vercel deployment token      | ✅       | [Vercel Account Settings](https://vercel.com/account/tokens)         |
+| `VERCEL_ORG_ID`                 | Vercel organization ID       | ✅       | Run `vercel link` in project directory                               |
+| `VERCEL_PROJECT_ID`             | Vercel project ID            | ✅       | Run `vercel link` in project directory                               |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL         | ✅       | [Supabase Dashboard](https://app.supabase.com) → Settings → API      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key       | ✅       | [Supabase Dashboard](https://app.supabase.com) → Settings → API      |
+| `DATABASE_URL`                  | PostgreSQL connection string | ✅       | [Supabase Dashboard](https://app.supabase.com) → Settings → Database |
+
+#### Optional Monitoring Secrets
+
+| Secret Name                     | Description                     | Required | Where to Get                                               |
+| ------------------------------- | ------------------------------- | -------- | ---------------------------------------------------------- |
+| `SENTRY_AUTH_TOKEN`             | Sentry authentication token     | ❌       | [Sentry Settings](https://sentry.io/settings/auth-tokens/) |
+| `SENTRY_ORG`                    | Sentry organization slug        | ❌       | Your Sentry organization name                              |
+| `SENTRY_PROJECT`                | Sentry project slug             | ❌       | Your Sentry project name                                   |
+| `NEXT_PUBLIC_SENTRY_DSN`        | Sentry Data Source Name         | ❌       | [Sentry Project Settings](https://sentry.io) → Client Keys |
+| `NEXT_PUBLIC_LOGROCKET_APP_ID`  | LogRocket application ID        | ❌       | [LogRocket Dashboard](https://app.logrocket.com)           |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics measurement ID | ❌       | [Google Analytics](https://analytics.google.com)           |
+
+#### How to Set Up Secrets
+
+1. **Go to your GitHub repository**
+2. **Navigate to**: `Settings → Secrets and variables → Actions`
+3. **Click**: `New repository secret`
+4. **Add each secret** with the exact name and value from the table above
+
+#### Vercel Setup Commands
+
+To get your Vercel organization and project IDs:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Link your project (run in project directory)
+vercel link
+
+# This will create .vercel/project.json with your IDs
+cat .vercel/project.json
+```
+
+#### Deployment Workflow Features
+
+- ✅ **Automated Testing** - Runs linting, formatting, and unit tests
+- ✅ **Build Validation** - Ensures the application builds successfully
+- ✅ **Preview Deployments** - Creates preview URLs for pull requests
+- ✅ **Production Deployment** - Deploys to production on main branch
+- ✅ **Health Checks** - Validates deployment with health endpoint
+- ✅ **Error Monitoring** - Integrates with Sentry for release tracking
+- ✅ **E2E Testing** - Runs end-to-end tests against preview deployments
+
 ## 📚 API Documentation
 
 ### Interactive Documentation
 
-- **Swagger UI**: [http://localhost:3000/docs/api](http://localhost:3000/docs/api)
+- **Swagger UI**:
+  [http://localhost:3000/docs/api](http://localhost:3000/docs/api)
 - **Postman Collection**: Download from `/docs/postman-collection.json`
 
 ### API Endpoints Overview
@@ -379,7 +453,6 @@ Authorization: Bearer <your-jwt-token>
    ```
 
 2. **Environment Variables**
-
    - Add all environment variables in Vercel dashboard
    - Ensure `NEXTAUTH_URL` points to your production domain
 
@@ -418,7 +491,8 @@ npm run test:coverage
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md)
+for details.
 
 ### Development Workflow
 
@@ -430,12 +504,14 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## 🆘 Support
 
 - **Documentation**: [/docs/api](http://localhost:3000/docs/api)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/onefooddialer/issues)
+- **Issues**:
+  [GitHub Issues](https://github.com/yourusername/onefooddialer/issues)
 - **Email**: support@onefooddialer.com
 - **Discord**: [Join our community](https://discord.gg/onefooddialer)
 
