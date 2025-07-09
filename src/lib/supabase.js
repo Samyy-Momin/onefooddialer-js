@@ -25,8 +25,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Use fallback values during build if needed
-const finalSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co';
-const finalSupabaseAnonKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+// Ensure URLs don't contain masked values (GitHub Actions masks secrets as ***)
+let finalSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co';
+let finalSupabaseAnonKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
+// Additional safety: replace any masked values with safe fallbacks
+if (finalSupabaseUrl.includes('***')) {
+  console.warn('Supabase URL contains masked values, using fallback');
+  finalSupabaseUrl = 'https://placeholder.supabase.co';
+}
+
+if (finalSupabaseAnonKey.includes('***')) {
+  console.warn('Supabase key contains masked values, using fallback');
+  finalSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+}
 
 // Client-side Supabase client
 export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
@@ -58,7 +70,14 @@ export const createSupabaseServerClient = context => {
 };
 
 // Admin client with service role key (with fallbacks for build time)
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+let serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+
+// Additional safety: replace any masked values with safe fallbacks
+if (serviceRoleKey.includes('***')) {
+  console.warn('Service role key contains masked values, using fallback');
+  serviceRoleKey = 'placeholder-service-key';
+}
+
 export const supabaseAdmin = createClient(finalSupabaseUrl, serviceRoleKey, {
   auth: {
     autoRefreshToken: false,

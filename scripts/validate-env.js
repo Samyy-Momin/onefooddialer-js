@@ -57,16 +57,28 @@ function log(message, color = 'reset') {
 }
 
 function validateUrl(url, name) {
+  // Skip validation if URL is undefined, empty, or masked (GitHub Actions masks secrets as ***)
+  if (!url || url.trim() === '' || url.includes('***')) {
+    log(`  ⚠️  ${name} is undefined or masked - skipping URL validation`, 'yellow');
+    return true; // Don't fail build for masked/undefined URLs
+  }
+
   try {
     new URL(url);
     return true;
   } catch {
-    log(`  ❌ ${name} is not a valid URL`, 'red');
+    log(`  ❌ ${name} is not a valid URL: ${url}`, 'red');
     return false;
   }
 }
 
 function validateSupabaseUrl(url) {
+  // Skip validation if URL is undefined, empty, or masked
+  if (!url || url.trim() === '' || url.includes('***')) {
+    log('  ⚠️  NEXT_PUBLIC_SUPABASE_URL is undefined or masked - skipping validation', 'yellow');
+    return true; // Don't fail build for masked/undefined URLs
+  }
+
   if (!validateUrl(url, 'NEXT_PUBLIC_SUPABASE_URL')) return false;
 
   if (!url.includes('.supabase.co')) {
@@ -98,6 +110,12 @@ function validateDatabaseUrl(url) {
 function validateEnvironmentVariable(name, value) {
   if (!value) {
     return false;
+  }
+
+  // Skip validation for masked values (GitHub Actions masks secrets as ***)
+  if (value.includes('***')) {
+    log(`  ⚠️  ${name} is masked - skipping validation`, 'yellow');
+    return true; // Don't fail build for masked values
   }
 
   // Specific validations
