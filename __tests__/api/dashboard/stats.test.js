@@ -4,7 +4,7 @@ import handler from '../../../src/pages/api/dashboard/stats.js';
 
 // Mock the auth middleware
 jest.mock('../../../src/lib/auth', () => ({
-  requireAuth: jest.fn().mockResolvedValue({
+  authenticateUser: jest.fn().mockResolvedValue({
     id: 'test-user-id',
     email: 'test@example.com',
     role: 'BUSINESS_OWNER',
@@ -12,7 +12,7 @@ jest.mock('../../../src/lib/auth', () => ({
   }),
 }));
 
-const { requireAuth } = require('../../../src/lib/auth');
+const { authenticateUser } = require('../../../src/lib/auth');
 
 describe('/api/dashboard/stats', () => {
   beforeEach(() => {
@@ -144,34 +144,45 @@ describe('/api/dashboard/stats', () => {
     });
 
     it('should handle business hours logic correctly', async () => {
-      // Test during business hours
-      jest.setSystemTime(new Date('2025-07-08T15:00:00Z')); // 3 PM
+      // Mock Math.random to return consistent values for testing
+      const originalRandom = Math.random;
+      Math.random = jest.fn(() => 0.5); // Fixed value for consistent results
 
-      const { req: businessReq, res: businessRes } = createMocks({
-        method: 'GET',
-      });
+      try {
+        // Test during business hours
+        jest.setSystemTime(new Date('2025-07-08T15:00:00Z')); // 3 PM
 
-      await handler(businessReq, businessRes);
-      const businessData = JSON.parse(businessRes._getData());
+        const { req: businessReq, res: businessRes } = createMocks({
+          method: 'GET',
+        });
 
-      // Test during off hours
-      jest.setSystemTime(new Date('2025-07-08T02:00:00Z')); // 2 AM
+        await handler(businessReq, businessRes);
+        const businessData = JSON.parse(businessRes._getData());
 
-      const { req: offReq, res: offRes } = createMocks({
-        method: 'GET',
-      });
+        // Test during off hours
+        jest.setSystemTime(new Date('2025-07-08T02:00:00Z')); // 2 AM
 
-      await handler(offReq, offRes);
-      const offData = JSON.parse(offRes._getData());
+        const { req: offReq, res: offRes } = createMocks({
+          method: 'GET',
+        });
 
-      // Orders today should be higher during business hours
-      expect(parseInt(businessData.data.ordersToday.value)).toBeGreaterThan(
-        parseInt(offData.data.ordersToday.value)
-      );
+        await handler(offReq, offRes);
+        const offData = JSON.parse(offRes._getData());
 
-      // Orders today trend should be 'up' during business hours
-      expect(businessData.data.ordersToday.trend).toBe('up');
-      expect(offData.data.ordersToday.trend).toBe('down');
+        // With Math.random() = 0.5:
+        // Business hours: (0.5 * 25 + 15) * 1.2 = 27.5 * 1.2 = 33
+        // Off hours: (0.5 * 25 + 15) * 0.8 = 27.5 * 0.8 = 22
+        expect(parseInt(businessData.data.ordersToday.value)).toBeGreaterThan(
+          parseInt(offData.data.ordersToday.value)
+        );
+
+        // Orders today trend should be 'up' during business hours
+        expect(businessData.data.ordersToday.trend).toBe('up');
+        expect(offData.data.ordersToday.trend).toBe('down');
+      } finally {
+        // Restore original Math.random
+        Math.random = originalRandom;
+      }
     });
 
     it('should return consistent data structure', async () => {
@@ -207,7 +218,10 @@ describe('/api/dashboard/stats', () => {
     });
 
     it('should return 401 if user is not authenticated', async () => {
-      requireAuth.mockRejectedValue(new Error('Unauthorized'));
+      authenticateUser.mockImplementation((req, res) => {
+        res.status(401).json({ error: 'No token provided' });
+        return null;
+      });
 
       const { req, res } = createMocks({
         method: 'GET',
@@ -219,6 +233,14 @@ describe('/api/dashboard/stats', () => {
     });
 
     it('should handle invalid range parameter gracefully', async () => {
+      // Reset the mock to return a valid user
+      authenticateUser.mockResolvedValue({
+        id: 'test-user-id',
+        email: 'test@example.com',
+        role: 'BUSINESS_OWNER',
+        businessId: 'test-business-id',
+      });
+
       const { req, res } = createMocks({
         method: 'GET',
         query: { range: 'invalid' },
@@ -235,7 +257,7 @@ describe('/api/dashboard/stats', () => {
 
     it('should handle server errors gracefully', async () => {
       // Mock a server error
-      requireAuth.mockImplementation(() => {
+      authenticateUser.mockImplementation(() => {
         throw new Error('Database connection failed');
       });
 

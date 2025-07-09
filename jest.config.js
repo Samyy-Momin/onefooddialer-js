@@ -15,7 +15,7 @@ const customJestConfig = {
   moduleDirectories: ['node_modules', '<rootDir>/'],
 
   // Test environment
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: 'node',
 
   // Test file patterns
   testMatch: [
@@ -69,6 +69,9 @@ const customJestConfig = {
 
   // Restore mocks after each test
   restoreMocks: true,
+
+  // Transform ignore patterns for ES modules
+  transformIgnorePatterns: ['node_modules/(?!(jose|@supabase|@panva)/)'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

@@ -1,5 +1,5 @@
 // OneFoodDialer - Real-time Dashboard Stats API
-import { requireAuth } from '../../../lib/auth';
+import { authenticateUser } from '../../../lib/auth';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -8,10 +8,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const user = await requireAuth(req, res);
+    const user = await authenticateUser(req, res);
     if (!user) return;
 
-    const { range = '7d' } = req.query;
+    const { range: requestedRange = '7d' } = req.query;
+
+    // Normalize range parameter
+    let range;
+    switch (requestedRange) {
+      case '7d':
+      case '30d':
+      case '90d':
+      case '1y':
+        range = requestedRange;
+        break;
+      default:
+        range = '7d'; // Default to 7d for invalid ranges
+    }
 
     // Calculate date range
     const now = new Date();
@@ -30,8 +43,6 @@ export default async function handler(req, res) {
       case '1y':
         fromDate.setFullYear(now.getFullYear() - 1);
         break;
-      default:
-        fromDate.setDate(now.getDate() - 7);
     }
 
     // Generate realistic real-time data with business logic

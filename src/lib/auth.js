@@ -289,3 +289,27 @@ export const requireBusinessAccess = handler => {
     return handler(req, res);
   });
 };
+
+// Direct authentication function for API handlers
+export const authenticateUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      res.status(401).json({ error: 'No token provided' });
+      return null;
+    }
+
+    const user = await getUserFromToken(token);
+
+    if (!user) {
+      res.status(401).json({ error: 'Invalid token' });
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    res.status(401).json({ error: 'Authentication failed' });
+    return null;
+  }
+};
