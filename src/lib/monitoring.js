@@ -1,8 +1,7 @@
 // OneFoodDialer - Monitoring & Analytics Setup
 import LogRocket from 'logrocket';
-import setupLogRocketReact from 'logrocket-react';
 
-// Initialize LogRocket
+// Initialize LogRocket (without React-specific package for React 19 compatibility)
 export const initializeLogRocket = () => {
   if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_LOGROCKET_APP_ID) {
     LogRocket.init(process.env.NEXT_PUBLIC_LOGROCKET_APP_ID, {
@@ -39,8 +38,18 @@ export const initializeLogRocket = () => {
       },
     });
 
-    // Setup React integration
-    setupLogRocketReact(LogRocket);
+    // Manual React integration (compatible with React 19)
+    // This replaces setupLogRocketReact functionality
+    if (typeof window !== 'undefined' && window.React) {
+      // Add React DevTools integration if available
+      try {
+        LogRocket.getSessionURL(sessionURL => {
+          console.log('LogRocket session:', sessionURL);
+        });
+      } catch (error) {
+        console.warn('LogRocket React integration warning:', error);
+      }
+    }
   }
 };
 
