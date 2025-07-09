@@ -30,9 +30,16 @@ export default function CreateInvoice() {
 
   const fetchCustomers = async () => {
     try {
+      // Ensure we're on the client side before accessing localStorage
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const token = localStorage.getItem('supabase.auth.token');
       const response = await fetch('/api/customers', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -137,11 +144,18 @@ export default function CreateInvoice() {
     setLoading(true);
 
     try {
+      // Ensure we're on the client side before accessing localStorage
+      if (typeof window === 'undefined') {
+        setError('This action is not available during server-side rendering');
+        return;
+      }
+
+      const token = localStorage.getItem('supabase.auth.token');
       const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify(formData),
       });
