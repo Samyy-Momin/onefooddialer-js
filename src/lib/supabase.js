@@ -5,8 +5,21 @@ import {
   createServerComponentClient,
 } from '@supabase/auth-helpers-nextjs';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Get environment variables with comprehensive safety checks
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Critical fix: Handle masked environment variables from GitHub Actions
+// GitHub Actions masks secrets as *** which causes Invalid URL errors
+if (supabaseUrl && supabaseUrl.includes('***')) {
+  console.warn('NEXT_PUBLIC_SUPABASE_URL contains masked values, using fallback');
+  supabaseUrl = undefined; // Force fallback
+}
+
+if (supabaseAnonKey && supabaseAnonKey.includes('***')) {
+  console.warn('NEXT_PUBLIC_SUPABASE_ANON_KEY contains masked values, using fallback');
+  supabaseAnonKey = undefined; // Force fallback
+}
 
 // Validate environment variables with better error handling
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -29,25 +42,70 @@ if (!supabaseUrl || !supabaseAnonKey) {
 let finalSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co';
 let finalSupabaseAnonKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
 
-// Additional safety: replace any masked values with safe fallbacks
-if (finalSupabaseUrl.includes('***')) {
-  console.warn('Supabase URL contains masked values, using fallback');
+// Additional comprehensive safety checks for any remaining masked values
+if (
+  finalSupabaseUrl &&
+  (finalSupabaseUrl.includes('***') ||
+    finalSupabaseUrl === '***' ||
+    finalSupabaseUrl.endsWith('***/'))
+) {
+  console.warn('Supabase URL contains masked values, using safe fallback');
   finalSupabaseUrl = 'https://placeholder.supabase.co';
 }
 
-if (finalSupabaseAnonKey.includes('***')) {
-  console.warn('Supabase key contains masked values, using fallback');
+if (
+  finalSupabaseAnonKey &&
+  (finalSupabaseAnonKey.includes('***') || finalSupabaseAnonKey === '***')
+) {
+  console.warn('Supabase key contains masked values, using safe fallback');
   finalSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
 }
 
-// Client-side Supabase client
-export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+// Final validation: ensure we have valid URL format
+try {
+  new URL(finalSupabaseUrl);
+} catch (error) {
+  console.warn('Final Supabase URL validation failed, using safe fallback:', error.message);
+  finalSupabaseUrl = 'https://placeholder.supabase.co';
+}
+
+// Client-side Supabase client with build-time safety
+let supabaseClient;
+try {
+  // Additional check: if we're in build mode and URL looks suspicious, use minimal config
+  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    // We're in build mode - use absolute minimal configuration
+    if (!finalSupabaseUrl.startsWith('https://') || finalSupabaseUrl.includes('***')) {
+      console.warn('Build-time: Using minimal Supabase configuration');
+      finalSupabaseUrl = 'https://placeholder.supabase.co';
+      finalSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+    }
+  }
+
+  supabaseClient = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+} catch (error) {
+  console.error('Failed to create Supabase client:', error);
+  // Create a minimal fallback client
+  supabaseClient = createClient(
+    'https://placeholder.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder',
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    }
+  );
+}
+
+export const supabase = supabaseClient;
 
 // Client component helper (with build-time safety)
 export const createSupabaseClient = () => {
@@ -70,19 +128,43 @@ export const createSupabaseServerClient = context => {
 };
 
 // Admin client with service role key (with fallbacks for build time)
-let serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+let serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Additional safety: replace any masked values with safe fallbacks
-if (serviceRoleKey.includes('***')) {
+// Handle masked service role key from GitHub Actions
+if (serviceRoleKey && serviceRoleKey.includes('***')) {
   console.warn('Service role key contains masked values, using fallback');
+  serviceRoleKey = undefined; // Force fallback
+}
+
+// Use fallback if undefined
+serviceRoleKey = serviceRoleKey || 'placeholder-service-key';
+
+// Additional safety: ensure no masked values remain
+if (serviceRoleKey && (serviceRoleKey.includes('***') || serviceRoleKey === '***')) {
+  console.warn('Service role key still contains masked values, using safe fallback');
   serviceRoleKey = 'placeholder-service-key';
 }
 
-export const supabaseAdmin = createClient(finalSupabaseUrl, serviceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+// Create admin client with comprehensive error handling
+let supabaseAdminClient;
+try {
+  supabaseAdminClient = createClient(finalSupabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+} catch (error) {
+  console.error('Failed to create Supabase admin client:', error);
+  // Create a minimal fallback admin client
+  supabaseAdminClient = createClient('https://placeholder.supabase.co', 'placeholder-service-key', {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+export const supabaseAdmin = supabaseAdminClient;
 
 export default supabase;
