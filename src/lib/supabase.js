@@ -37,18 +37,29 @@ export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
   },
 });
 
-// Client component helper
+// Client component helper (with build-time safety)
 export const createSupabaseClient = () => {
-  return createClientComponentClient();
+  try {
+    return createClientComponentClient();
+  } catch (error) {
+    console.warn('Failed to create Supabase client component client:', error.message);
+    return supabase; // Fallback to main client
+  }
 };
 
-// Server component helper
+// Server component helper (with build-time safety)
 export const createSupabaseServerClient = context => {
-  return createServerComponentClient(context);
+  try {
+    return createServerComponentClient(context);
+  } catch (error) {
+    console.warn('Failed to create Supabase server component client:', error.message);
+    return supabase; // Fallback to main client
+  }
 };
 
-// Admin client with service role key
-export const supabaseAdmin = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+// Admin client with service role key (with fallbacks for build time)
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+export const supabaseAdmin = createClient(finalSupabaseUrl, serviceRoleKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,

@@ -44,14 +44,16 @@ export default function ListPage({
           }
         });
 
-        // Get auth token for authenticated requests
-        const token = localStorage.getItem('supabase.auth.token');
+        // Get auth token for authenticated requests (client-side only)
         const headers = {
           'Content-Type': 'application/json',
         };
 
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+        if (typeof window !== 'undefined') {
+          const token = localStorage.getItem('supabase.auth.token');
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
         }
 
         const response = await fetch(`${dataUrl}?${queryParams}`, {
