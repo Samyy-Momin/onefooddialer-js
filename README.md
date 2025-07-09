@@ -227,6 +227,8 @@ User Action → Component → API Route → Middleware → Business Logic → Da
 
 ## 🚀 Quick Start
 
+<!-- Updated Vercel token - testing complete CI/CD pipeline -->
+
 ### Prerequisites
 
 - Node.js 18+ and npm/yarn
