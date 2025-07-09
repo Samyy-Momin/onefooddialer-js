@@ -1,5 +1,16 @@
 // OneFoodDialer - Utility Functions
 import { format, addDays, startOfDay, endOfDay } from 'date-fns';
+import bcrypt from 'bcryptjs';
+
+// Password utilities
+export const hashPassword = async password => {
+  const saltRounds = 12;
+  return await bcrypt.hash(password, saltRounds);
+};
+
+export const comparePassword = async (password, hashedPassword) => {
+  return await bcrypt.compare(password, hashedPassword);
+};
 
 // Generate unique codes
 export const generateCustomerCode = () => {

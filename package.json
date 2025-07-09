@@ -63,6 +63,7 @@
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2",
     "recharts": "^3.0.2",
+    "swagger-ui-dist": "^5.26.2",
     "uuid": "^11.1.0",
     "yup": "^1.6.1"
   },
