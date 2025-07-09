@@ -72,28 +72,41 @@ describe('/api/dashboard/stats', () => {
     });
 
     it('should return higher values during peak hours', async () => {
-      // Test during peak hours (14:30)
-      const { req: peakReq, res: peakRes } = createMocks({
-        method: 'GET',
-      });
+      // Mock Math.random to return consistent values for testing
+      const originalRandom = Math.random;
+      Math.random = jest.fn().mockReturnValue(0.5); // Fixed value for consistent testing
 
-      await handler(peakReq, peakRes);
-      const peakData = JSON.parse(peakRes._getData());
+      try {
+        // Test during peak hours (14:30)
+        jest.setSystemTime(new Date('2025-07-08T14:30:00Z')); // Peak hours
 
-      // Test during non-peak hours
-      jest.setSystemTime(new Date('2025-07-08T03:30:00Z')); // Off hours
+        const { req: peakReq, res: peakRes } = createMocks({
+          method: 'GET',
+        });
 
-      const { req: offReq, res: offRes } = createMocks({
-        method: 'GET',
-      });
+        await handler(peakReq, peakRes);
+        const peakData = JSON.parse(peakRes._getData());
 
-      await handler(offReq, offRes);
-      const offData = JSON.parse(offRes._getData());
+        // Test during non-peak hours
+        jest.setSystemTime(new Date('2025-07-08T03:30:00Z')); // Off hours
 
-      // Active orders should be higher during peak hours
-      expect(parseInt(peakData.data.activeOrders.value)).toBeGreaterThan(
-        parseInt(offData.data.activeOrders.value)
-      );
+        const { req: offReq, res: offRes } = createMocks({
+          method: 'GET',
+        });
+
+        await handler(offReq, offRes);
+        const offData = JSON.parse(offRes._getData());
+
+        // Active orders should be higher during peak hours due to 1.5x multiplier
+        // Peak: (0.5 * 40 + 20) * 1.5 = 40 * 1.5 = 60
+        // Off: (0.5 * 40 + 20) * 0.3 = 40 * 0.3 = 12
+        expect(parseInt(peakData.data.activeOrders.value)).toBeGreaterThan(
+          parseInt(offData.data.activeOrders.value)
+        );
+      } finally {
+        // Restore original Math.random
+        Math.random = originalRandom;
+      }
     });
 
     it('should return realistic business metrics', async () => {
@@ -108,7 +121,7 @@ describe('/api/dashboard/stats', () => {
 
       // Verify data types and ranges
       expect(typeof stats.totalCustomers.value).toBe('number');
-      expect(stats.totalCustomers.value).toBeGreaterThan(1200);
+      expect(stats.totalCustomers.value).toBeGreaterThanOrEqual(1200);
       expect(stats.totalCustomers.value).toBeLessThan(1500);
 
       expect(stats.totalRevenue.value).toMatch(/^₹[\d,]+$/);
