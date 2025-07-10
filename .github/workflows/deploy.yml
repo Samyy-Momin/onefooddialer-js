@@ -162,7 +162,7 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --confirm)
           echo "preview_url=$url" >> $GITHUB_OUTPUT
           echo "✅ Preview deployed to: $url"
         env:
@@ -221,6 +221,15 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      - name: Remove existing Vercel configuration
+        run: rm -rf .vercel || true
+
+      - name: Link Vercel project
+        run: vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
@@ -237,11 +246,14 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       - name: Deploy Project Artifacts to Vercel
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --confirm)
           echo "production_url=$url" >> $GITHUB_OUTPUT
           echo "✅ Production deployed to: $url"
         env:
