@@ -21,6 +21,7 @@
     "test:all": "npm run test && npm run test:e2e",
     "quality": "npm run lint:check && npm run format:check && npm run test:ci",
     "prepare": "husky",
+    "postinstall": "prisma generate",
     "deploy:vercel": "vercel --prod",
     "deploy:preview": "vercel",
     "health:check": "curl -f http://localhost:3000/api/health || exit 1",
