@@ -93,15 +93,17 @@
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/cleanup",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/notifications",
-      "schedule": "*/15 * * * *"
-    }
-  ]
+  }
+  // Cron jobs temporarily disabled for Hobby plan compatibility
+  // Uncomment when upgrading to Pro plan or when implementing the endpoints
+  // "crons": [
+  //   {
+  //     "path": "/api/cron/cleanup",
+  //     "schedule": "0 2 * * *"
+  //   },
+  //   {
+  //     "path": "/api/cron/notifications",
+  //     "schedule": "0 9 * * *"
+  //   }
+  // ]
 }
