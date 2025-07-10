@@ -33,8 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
+# vercel (ignore deployment artifacts but keep project config)
 .vercel
+!.vercel/project.json
 
 # typescript
 *.tsbuildinfo
