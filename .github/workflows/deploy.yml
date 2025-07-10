@@ -253,8 +253,16 @@ jobs:
           echo "⏳ Waiting for deployment to be ready..."
           sleep 30
           echo "🔍 Running health check..."
-          curl -f ${{ steps.deploy.outputs.production_url }}/api/health || exit 1
-          echo "✅ Health check passed"
+          echo "Health check URL: ${{ steps.deploy.outputs.production_url }}/api/health"
+          response=$(curl -s -w "%{http_code}" ${{ steps.deploy.outputs.production_url }}/api/health)
+          http_code="${response: -3}"
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Health check passed (HTTP $http_code)"
+          else
+            echo "❌ Health check failed (HTTP $http_code)"
+            echo "Response: ${response%???}"
+            exit 1
+          fi
 
       - name: Check Sentry configuration
         id: sentry-check
