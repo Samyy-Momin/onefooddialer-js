@@ -265,16 +265,46 @@ jobs:
           echo "⏳ Waiting for deployment to be ready..."
           sleep 30
           echo "🔍 Running health check..."
-          echo "Health check URL: ${{ steps.deploy.outputs.production_url }}/api/health"
-          response=$(curl -s -w "%{http_code}" ${{ steps.deploy.outputs.production_url }}/api/health)
-          http_code="${response: -3}"
-          if [ "$http_code" -eq 200 ]; then
-            echo "✅ Health check passed (HTTP $http_code)"
-          else
-            echo "❌ Health check failed (HTTP $http_code)"
-            echo "Response: ${response%???}"
-            exit 1
-          fi
+
+          # Try multiple health check endpoints
+          HEALTH_URLS=(
+            "${{ steps.deploy.outputs.production_url }}/api/health"
+            "${{ steps.deploy.outputs.production_url }}/health"
+          )
+
+          for url in "${HEALTH_URLS[@]}"; do
+            echo "Testing: $url"
+
+            # Get response with status code
+            response=$(curl -s -w "\n%{http_code}" "$url" || echo -e "\nERROR")
+            http_code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | head -n -1)
+
+            echo "HTTP Status: $http_code"
+            echo "Response Body: $body"
+
+            if [ "$http_code" = "200" ]; then
+              echo "✅ Health check passed for $url"
+
+              # Verify response contains expected content
+              if echo "$body" | grep -q '"status".*"ok"'; then
+                echo "✅ Health check response is valid"
+                exit 0
+              else
+                echo "⚠️ Health check returned 200 but invalid response format"
+              fi
+            elif [ "$http_code" = "401" ]; then
+              echo "❌ Health check failed with 401 Unauthorized - SSO protection detected"
+              echo "This indicates Vercel project has SSO protection enabled"
+            else
+              echo "❌ Health check failed with HTTP $http_code"
+            fi
+
+            echo "---"
+          done
+
+          echo "❌ All health check endpoints failed"
+          exit 1
 
       - name: Check Sentry configuration
         id: sentry-check
