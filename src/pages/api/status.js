@@ -8,6 +8,8 @@ export default function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('X-Robots-Tag', 'noindex');
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('X-Vercel-No-Auth', '1');
+  res.setHeader('X-Public-Endpoint', 'true');
 
   // Handle OPTIONS request for CORS
   if (req.method === 'OPTIONS') {

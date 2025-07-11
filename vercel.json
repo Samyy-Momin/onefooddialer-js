@@ -3,6 +3,14 @@
   "functions": {
     "src/pages/api/**/*.js": {
       "maxDuration": 30
+    },
+    "src/pages/api/status.js": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "src/pages/api/health.js": {
+      "maxDuration": 10,
+      "memory": 128
     }
   },
   "headers": [
@@ -135,6 +143,9 @@
   ],
   "env": {
     "NODE_ENV": "production"
+  },
+  "github": {
+    "silent": true
   },
   "build": {
     "env": {
