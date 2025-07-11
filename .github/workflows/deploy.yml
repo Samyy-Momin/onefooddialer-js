@@ -106,7 +106,7 @@ jobs:
     name: Deploy Preview
     runs-on: ubuntu-latest
     needs: [test, build]
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     outputs:
       preview_url: ${{ steps.deploy.outputs.preview_url }}
 
@@ -340,7 +340,7 @@ jobs:
     name: End-to-End Tests
     runs-on: ubuntu-latest
     needs: deploy-preview
-    if: github.event_name == 'pull_request' && needs.deploy-preview.outputs.preview_url != ''
+    if: (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')) && needs.deploy-preview.outputs.preview_url != ''
 
     steps:
       - name: Checkout code
@@ -358,18 +358,39 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Validate preview URL
+      - name: Determine test URL
+        id: test-url
         run: |
-          if [ -z "${{ needs.deploy-preview.outputs.preview_url }}" ]; then
-            echo "❌ Preview URL is not available"
-            exit 1
+          if [ -n "${{ needs.deploy-preview.outputs.preview_url }}" ]; then
+            TEST_URL="${{ needs.deploy-preview.outputs.preview_url }}"
+            echo "Using preview URL: $TEST_URL"
+          else
+            TEST_URL="https://onefooddialer-js-ld42.vercel.app"
+            echo "Using production URL: $TEST_URL"
           fi
-          echo "✅ Running E2E tests against: ${{ needs.deploy-preview.outputs.preview_url }}"
+          echo "test_url=$TEST_URL" >> $GITHUB_OUTPUT
+          echo "✅ Running E2E tests against: $TEST_URL"
+
+      - name: Wait for deployment to be ready
+        run: |
+          echo "⏳ Waiting for deployment to be ready..."
+          sleep 30
+
+          # Test if the deployment is accessible
+          for i in {1..5}; do
+            if curl -s -f "${{ steps.test-url.outputs.test_url }}/status" > /dev/null; then
+              echo "✅ Deployment is ready"
+              break
+            fi
+            echo "⏳ Attempt $i/5: Waiting for deployment..."
+            sleep 10
+          done
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          PLAYWRIGHT_TEST_BASE_URL: ${{ needs.deploy-preview.outputs.preview_url }}
+          BASE_URL: ${{ steps.test-url.outputs.test_url }}
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.test-url.outputs.test_url }}
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4
