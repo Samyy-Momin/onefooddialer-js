@@ -1,0 +1,8 @@
+{
+  "status": "ok",
+  "timestamp": "2025-01-11T00:00:00.000Z",
+  "message": "Service is running",
+  "version": "1.0.0",
+  "public": true,
+  "environment": "production"
+}

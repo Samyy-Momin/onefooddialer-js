@@ -266,10 +266,13 @@ jobs:
           sleep 30
           echo "🔍 Running health check..."
 
-          # Try multiple health check endpoints
+          # Try multiple public health check endpoints (no SSO protection)
           HEALTH_URLS=(
-            "${{ steps.deploy.outputs.production_url }}/api/health"
+            "${{ steps.deploy.outputs.production_url }}/api/status"
+            "${{ steps.deploy.outputs.production_url }}/health.json"
+            "${{ steps.deploy.outputs.production_url }}/health-check"
             "${{ steps.deploy.outputs.production_url }}/health"
+            "${{ steps.deploy.outputs.production_url }}/api/health"
           )
 
           for url in "${HEALTH_URLS[@]}"; do
